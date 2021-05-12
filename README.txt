@@ -15,7 +15,10 @@ SE E' LA PRIMA VOLTA CHE TI CONNETTI AL QUESTO SERVER REMOTO
 	
 PER LE VOLTE SUCCESSIVE IN CUI VUOI RICONNETTERTI A QUESTO SERVER REMOTO
 
- 1. git pull (integrerà i cambiamenti del repository remoto 'Pianificazione-Controllo' all'interno del branch su cui lavori. Questo perchè quando riprenderai il tuo lavoro, probabilmente qualcuno del tuo gruppo avrà fatto altre modifiche)- comando per aggiornare e quindi sovrascrivere la tua copia locale del repository
-(1. se non vuoi sovrascrivere la tua copia locale, usa 
+ 1. All'interno della directory clonata digitare
+	git pull 
+(integrerà i cambiamenti del repository remoto 'Pianificazione-Controllo' all'interno del branch su cui lavori. Questo perchè quando riprenderai il tuo lavoro, probabilmente qualcuno del tuo gruppo avrà fatto altre modifiche)- comando per aggiornare e quindi sovrascrivere la tua copia locale del repository
+(1. se non vuoi sovrascrivere la tua copia locale,sempre all'interno della cartella clonata, usa 
 	git fetch
+ma comunque per i nostri scopi penso sia più utile git pull
 2. fare git add, git commit ecc. come sopra
