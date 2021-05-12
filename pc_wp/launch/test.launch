@@ -1,0 +1,3 @@
+<launch>
+    <rosparam file="$(find pc_wp)/config/mission.yaml" />
+</launch>
