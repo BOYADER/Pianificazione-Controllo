@@ -22,3 +22,9 @@ PER LE VOLTE SUCCESSIVE IN CUI VUOI RICONNETTERTI A QUESTO SERVER REMOTO
 	git fetch
 ma comunque per i nostri scopi penso sia più utile git pull
 2. fare git add, git commit ecc. come sopra
+
+Comandi utili :
+	git status
+da usare per vedere cosa è stato 'add', cosa è stato 'committed' ecc
+quelli aggiunti ma non ancora committed, saranno registrati in verde. Quelli in rosso sono stati modificati o aggiornati, ma non sono stati aggiunti.
+(comando che uso prima e dopo il git add, e dopo il git committed)
