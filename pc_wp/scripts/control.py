@@ -9,12 +9,10 @@ def callback(data):
 	pub.publish(data.data + 0.5)
 
 def control():
-	rospy.Subscriber('des_position', Float64, callback)
-	rospy.Subscriber('des_orientation', Float64, callback)
+	rospy.Subscriber('odom', Float64, callback)
+	rospy.Subscriber('current_task', Float64, callback)
 	rospy.Subscriber('des_velocity', Float64, callback)
-	rospy.Subscriber('current_orientation', Float64, callback)
-	rospy.Subscriber('current_position', Float64, callback)
-	rospy.Subscriber('current_velocity', Float64, callback)
+	rospy.Subscriber('references', Float64, callback)
 	rospy.init_node('control')
 	rospy.spin()
 
