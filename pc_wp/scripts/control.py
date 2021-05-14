@@ -9,11 +9,11 @@ def callback(data):
 	pub.publish(data.data + 0.5)
 
 def control():
+	rospy.init_node('control')
 	rospy.Subscriber('odom', Float64, callback)
 	rospy.Subscriber('current_task', Float64, callback)
 	rospy.Subscriber('des_velocity', Float64, callback)
 	rospy.Subscriber('references', Float64, callback)
-	rospy.init_node('control')
 	rospy.spin()
 
 if __name__ == '__main__':
