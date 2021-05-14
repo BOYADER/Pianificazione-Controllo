@@ -12,6 +12,7 @@ SE E' LA PRIMA VOLTA CHE TI CONNETTI AL QUESTO SERVER REMOTO
 	git add <nomefilemodificato>
 	git commit -m 'commentosullevostremodifiche'
 	git push origin main
+A questo punto vi chiederà username e password di GitHub
 	
 PER LE VOLTE SUCCESSIVE IN CUI VUOI RICONNETTERTI A QUESTO SERVER REMOTO
 
