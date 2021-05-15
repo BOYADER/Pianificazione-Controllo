@@ -1,22 +1,25 @@
 #!/usr/bin/env python
 import rospy
-from std_msgs.msg import Float64
+from pc_wp.msg import Odom, References, Task
 
-def callback(data):
-	rospy.loginfo(data.data)
+references = References()
+current_task = Task()
+
+def odom_callback(odom, pub):
+	global current_task	
+	current_task.value = "ROTATE"
+	pub.publish(current_task)
+
+def ref_callback(ref):
+	global references
+	references = data
 	
 def task_manager():
-	rospy.Subscriber('odom', odom, callback)
-	rospy.Subscriber('references', Float64, callback)
-	pub = rospy.Publisher('current_task', Float64, queue_size=10)
+	pub = rospy.Publisher('current_task', Task, queue_size=10)
+	rospy.Subscriber('odom', Odom, odom_callback, pub)
+	rospy.Subscriber('references', References, ref_callback)
 	rospy.init_node('task_manager')
-	rate = rospy.Rate(1) # 1hz
-	num = 1
-	while not rospy.is_shutdown():
-		rospy.loginfo(num)
-		pub.publish(num)
-		num = num + 1
-		rate.sleep()
+	rospy.spin()
 
 if __name__ == '__main__':
 	try:

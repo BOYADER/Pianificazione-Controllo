@@ -5,7 +5,7 @@ from pc_wp.msg import Odom
 def navigation():
 	pub = rospy.Publisher('odom', Odom, queue_size=10)
 	rospy.init_node('navigation')
-	rate = rospy.Rate(10) # 10hz
+	rate = rospy.Rate(1) # 1hz
 	odom_msg = Odom()
 	odom_msg.lla.x = 1
 	odom_msg.lla.y = 2
