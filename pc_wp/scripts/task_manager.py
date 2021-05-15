@@ -2,12 +2,11 @@
 import rospy
 from std_msgs.msg import Float64
 
-
 def callback(data):
 	rospy.loginfo(data.data)
 	
 def task_manager():
-	rospy.Subscriber('odom', Float64, callback)
+	rospy.Subscriber('odom', odom, callback)
 	rospy.Subscriber('references', Float64, callback)
 	pub = rospy.Publisher('current_task', Float64, queue_size=10)
 	rospy.init_node('task_manager')
