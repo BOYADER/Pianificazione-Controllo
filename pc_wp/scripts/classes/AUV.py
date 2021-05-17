@@ -38,7 +38,7 @@ class AUV:
 		z_ecef = (N_e * (1 - e*e) - depth) * math.sin(latitude)
 		coords_ecef = np.array([[x_ecef, y_ecef, z_ecef]]).T
 	
-		N_e_ned_frame = R_e/(math.sqrt(1-e*e*math.sin(self.latitude_ned)*math.sin(self.latitude_ned)))
+		N_e_ned_frame = R_e/(math.sqrt(1 - e*e*math.sin(self.latitude_ned)*math.sin(self.latitude_ned)))
 		x_ecef_ned_frame = (N_e_ned_frame - self.depth_ned) * math.cos(self.latitude_ned) * math.cos(self.longitude_ned)
 		y_ecef_ned_frame = (N_e_ned_frame - self.depth_ned) * math.cos(self.latitude_ned) * math.sin(self.longitude_ned)
 		z_ecef_ned_frame = (N_e_ned_frame * (1 - e*e) - self.depth_ned) * math.sin(self.latitude_ned)
@@ -55,7 +55,8 @@ class AUV:
 		r33 = -math.sin(self.latitude_ned)
 		R_ned_ecef = np.matrix([[r11, r12, r13],[r21, r22, r23],[r31, r32, r33]])
 
-		coords_ned = R_ned_ecef*(coords_ecef - coords_ecef_ned_frame)		
+		coords_ned = R_ned_ecef*(coords_ecef - coords_ecef_ned_frame)
+		
 		if index == -1:
 			self.x = coords_ned.item(0)
 			self.y = coords_ned.item(1)
@@ -65,6 +66,20 @@ class AUV:
 			self.waypoints[index].y = coords_ned.item(1)
 			self.waypoints[index].z = coords_ned.item(2)
 
+	def init_waypoints(self):
+	tolerance = rospy.get_param('/tolerance_on_waypoint')
+	index = 1
+	while index <= len(rospy.get_param('/waypoint_list')):
+		string_param = '/waypoint_list/wp' + str(index)
+		latitude = rospy.get_param(string_param)['latitude']
+		longitude = rospy.get_param(string_param)['longitude']
+		depth = rospy.get_param(string_param)['depth']
+		self.waypoints.append(Waypoint(latitude, longitude, depth, tolerance))
+		#print(auv.waypoints[index-1].latitude, auv.waypoints[index-1].longitude, auv.waypoints[index-1].depth)
+		self.geo2ned(latitude, longitude, depth, index-1)
+		#print(auv.waypoints[index-1].x, auv.waypoints[index-1].y, auv.waypoints[index-1].z)
+		index = index + 1	
+	
 	def update(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz):
 		self.latitude = latitude
 		self.longitude = longitude
@@ -77,5 +92,15 @@ class AUV:
 		self.vz = vz
 		self.geo2ned(self.latitude, self.longitude, self.depth, -1)
 	
+#def init_auv():
+#	global auv
+#	latitude = rospy.get_param('/initial_pose/position/latitude')
+#	longitude = rospy.get_param('/initial_pose/position/latitude')
+#	depth = rospy.get_param('/initial_pose/position/depth')
+#	roll = rospy.get_param('/initial_pose/orientation/roll')
+#	pitch = rospy.get_param('/initial_pose/orientation/pitch')
+#	yaw = rospy.get_param('/initial_pose/orientation/yaw')
+#	critical_pitch = rospy.get_param('/critical_pitch')
+#	auv = AUV(latitude, longitude, depth, roll, pitch, yaw, critical_pitch)	
 
 

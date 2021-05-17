@@ -7,32 +7,6 @@ from pc_wp.msg import Odom, References, State
 	
 auv = None
 
-#def init_auv():
-#	global auv
-#	latitude = rospy.get_param('/initial_pose/position/latitude')
-#	longitude = rospy.get_param('/initial_pose/position/latitude')
-#	depth = rospy.get_param('/initial_pose/position/depth')
-#	roll = rospy.get_param('/initial_pose/orientation/roll')
-#	pitch = rospy.get_param('/initial_pose/orientation/pitch')
-#	yaw = rospy.get_param('/initial_pose/orientation/yaw')
-#	critical_pitch = rospy.get_param('/critical_pitch')
-#	auv = AUV(latitude, longitude, depth, roll, pitch, yaw, critical_pitch)	
-
-def init_waypoints():
-	global auv
-	tolerance = rospy.get_param('/tolerance_on_waypoint')
-	index = 1
-	while index <= len(rospy.get_param('/waypoint_list')):
-		string_param = '/waypoint_list/wp' + str(index)
-		latitude = rospy.get_param(string_param)['latitude']
-		longitude = rospy.get_param(string_param)['longitude']
-		depth = rospy.get_param(string_param)['depth']
-		auv.waypoints.append(Waypoint(latitude, longitude, depth, tolerance))
-		print(auv.waypoints[index-1].latitude, auv.waypoints[index-1].longitude, auv.waypoints[index-1].depth)
-		auv.geo2ned(latitude, longitude, depth, index-1)
-		print(auv.waypoints[index-1].x, auv.waypoints[index-1].y, auv.waypoints[index-1].z)
-		index = index + 1
-		
 def odom_callback(odom, pub):
 	global auv
 	if not auv:
@@ -45,10 +19,10 @@ def odom_callback(odom, pub):
 		#publish messaggio con task corrente		
 		auv.strategy = 1
 		#auv.update(odom.lla.x, odom.lla.y, odom.lla.z, odom.rpy.x, odom.rpy.y, odom.rpy.z, odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
-		print(auv.x, auv.y, auv.z)
-	else:
-		auv.update(odom.lla.x, odom.lla.y, odom.lla.z, odom.rpy.x, odom.rpy.y, odom.rpy.z, odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
-		print(auv.x, auv.y, auv.z)
+		#print(auv.x, auv.y, auv.z)
+	#else:
+		#auv.update(odom.lla.x, odom.lla.y, odom.lla.z, odom.rpy.x, odom.rpy.y, odom.rpy.z, odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
+		#print(auv.x, auv.y, auv.z)
 
 def ref_callback(ref):
 	global references
@@ -62,8 +36,6 @@ def task_manager():
 	rospy.spin()
 
 if __name__ == '__main__':
-	#init_auv()
-	#init_waypoints()
 	try:
 		task_manager()
 	except rospy.ROSInterruptException:
