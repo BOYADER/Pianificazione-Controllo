@@ -17,7 +17,6 @@ def odom_callback(odom, pub):
 		#controllare se pitch desiderato e' minore di critical_pitch, se si auv.strategy = 1 else auv.strategy = 2
 		#inizializzare auv.task_seq a seconda della strategia
 		#publish messaggio con task corrente		
-		auv.strategy = 1
 		#auv.update(odom.lla.x, odom.lla.y, odom.lla.z, odom.rpy.x, odom.rpy.y, odom.rpy.z, odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
 		#print(auv.x, auv.y, auv.z)
 	#else:
