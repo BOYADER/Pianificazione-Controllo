@@ -67,18 +67,18 @@ class AUV:
 			self.waypoints[index].z = coords_ned.item(2)
 
 	def init_waypoints(self):
-	tolerance = rospy.get_param('/tolerance_on_waypoint')
-	index = 1
-	while index <= len(rospy.get_param('/waypoint_list')):
-		string_param = '/waypoint_list/wp' + str(index)
-		latitude = rospy.get_param(string_param)['latitude']
-		longitude = rospy.get_param(string_param)['longitude']
-		depth = rospy.get_param(string_param)['depth']
-		self.waypoints.append(Waypoint(latitude, longitude, depth, tolerance))
-		#print(auv.waypoints[index-1].latitude, auv.waypoints[index-1].longitude, auv.waypoints[index-1].depth)
-		self.geo2ned(latitude, longitude, depth, index-1)
-		#print(auv.waypoints[index-1].x, auv.waypoints[index-1].y, auv.waypoints[index-1].z)
-		index = index + 1	
+		tolerance = rospy.get_param('/tolerance_on_waypoint')
+		index = 1
+		while index <= len(rospy.get_param('/waypoint_list')):
+			string_param = '/waypoint_list/wp' + str(index)
+			latitude = rospy.get_param(string_param)['latitude']
+			longitude = rospy.get_param(string_param)['longitude']
+			depth = rospy.get_param(string_param)['depth']
+			self.waypoints.append(Waypoint(latitude, longitude, depth, tolerance))
+			#print(auv.waypoints[index-1].latitude, auv.waypoints[index-1].longitude, auv.waypoints[index-1].depth)
+			self.geo2ned(latitude, longitude, depth, index-1)
+			#print(auv.waypoints[index-1].x, auv.waypoints[index-1].y, auv.waypoints[index-1].z)
+			index = index + 1	
 	
 	def update(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz):
 		self.latitude = latitude
