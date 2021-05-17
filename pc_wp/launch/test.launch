@@ -1,0 +1,5 @@
+<launch>
+	<rosparam file="$(find pc_wp)/config/mission.yaml" />
+	<rosparam file="$(find pc_wp)/config/earth_params.yaml" />
+	<rosparam file="$(find pc_wp)/config/task_manager.yaml" />
+</launch>
