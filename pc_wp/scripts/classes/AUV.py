@@ -2,7 +2,7 @@
 import math
 import numpy as np
 import rospy
-import Waypoint
+from Waypoint import Waypoint
 
 class AUV:
 	def __init__(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz, critical_pitch):
