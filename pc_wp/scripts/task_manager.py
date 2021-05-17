@@ -7,16 +7,16 @@ from pc_wp.msg import Odom, References, State
 	
 auv = None
 
-def init_auv():
-	global auv
-	latitude = rospy.get_param('/initial_pose/position/latitude')
-	longitude = rospy.get_param('/initial_pose/position/latitude')
-	depth = rospy.get_param('/initial_pose/position/depth')
-	roll = rospy.get_param('/initial_pose/orientation/roll')
-	pitch = rospy.get_param('/initial_pose/orientation/pitch')
-	yaw = rospy.get_param('/initial_pose/orientation/yaw')
-	critical_pitch = rospy.get_param('/critical_pitch')
-	auv = AUV(latitude, longitude, depth, roll, pitch, yaw, critical_pitch)	
+#def init_auv():
+#	global auv
+#	latitude = rospy.get_param('/initial_pose/position/latitude')
+#	longitude = rospy.get_param('/initial_pose/position/latitude')
+#	depth = rospy.get_param('/initial_pose/position/depth')
+#	roll = rospy.get_param('/initial_pose/orientation/roll')
+#	pitch = rospy.get_param('/initial_pose/orientation/pitch')
+#	yaw = rospy.get_param('/initial_pose/orientation/yaw')
+#	critical_pitch = rospy.get_param('/critical_pitch')
+#	auv = AUV(latitude, longitude, depth, roll, pitch, yaw, critical_pitch)	
 
 def init_waypoints():
 	global auv
@@ -28,18 +28,21 @@ def init_waypoints():
 		longitude = rospy.get_param(string_param)['longitude']
 		depth = rospy.get_param(string_param)['depth']
 		auv.waypoints.append(Waypoint(latitude, longitude, depth, tolerance))
+		auv.geo2ned(latitude, longitude, depth, index-1)
 		index = index + 1
 		
 def odom_callback(odom, pub):
 	global auv
-	if not auv.strategy:
+	if not auv:
+		critical_pitch = rospy.get_param('/critical_pitch')
+		auv = AUV(odom.lla.x, odom.lla.y, odom.lla.z, odom.rpy.x, odom.rpy.y, odom.rpy.z, odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z, critical_pitch)
+		init_waypoints()
 		#calcolare pitch desiderato a partire dalla posizione dell'auv (odom.lla -> x y z) e dalla posizione del prossimo waypoint
 		#controllare se pitch desiderato e' minore di critical_pitch, se si auv.strategy = 1 else auv.strategy = 2
 		#inizializzare auv.task_seq a seconda della strategia
 		#publish messaggio con task corrente		
-		auv.ned(odom.lla.x, odom.lla.y, odom.lla.z)
 		auv.strategy = 1
-		auv.update(odom.lla.x, odom.lla.y, odom.lla.z, odom.rpy.x, odom.rpy.y, odom.rpy.z, odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
+		#auv.update(odom.lla.x, odom.lla.y, odom.lla.z, odom.rpy.x, odom.rpy.y, odom.rpy.z, odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
 		print(auv.x, auv.y, auv.z)
 	else:
 		auv.update(odom.lla.x, odom.lla.y, odom.lla.z, odom.rpy.x, odom.rpy.y, odom.rpy.z, odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
@@ -57,8 +60,8 @@ def task_manager():
 	rospy.spin()
 
 if __name__ == '__main__':
-	init_auv()
-	init_waypoints()
+	#init_auv()
+	#init_waypoints()
 	try:
 		task_manager()
 	except rospy.ROSInterruptException:

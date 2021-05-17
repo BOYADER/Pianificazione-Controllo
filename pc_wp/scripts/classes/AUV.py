@@ -4,7 +4,7 @@ import numpy as np
 import rospy
 
 class AUV:
-	def __init__(self, latitude, longitude, depth, roll, pitch, yaw, critical_pitch):
+	def __init__(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz, critical_pitch):
 		self.latitude = latitude
 		self.longitude = longitude
 		self.depth = depth
@@ -15,32 +15,28 @@ class AUV:
 		self.x = None
 		self.y = None
 		self.z = None
-		self.vx = None
-		self.vy = None
-		self.vz = None
-		self.latitude_ned = None
-		self.longitude_ned = None
-		self.depth_ned = None
+		self.vx = vx
+		self.vy = vy
+		self.vz = vz
+		self.latitude_ned = latitude
+		self.longitude_ned = longitude
+		self.depth_ned = depth
 		self.strategy = 0
 		self.task_seq = []
 		self.task_index = 0
 		self.waypoints = []
 		self.wp_index = 0
+		self.geo2ned(self.latitude, self.longitude, self.depth, -1)	
 		
-	def ned(self, latitude_ned, longitude_ned, depth_ned):
-		self.latitude_ned = latitude_ned
-		self.longitude_ned = longitude_ned
-		self.depth_ned = depth_ned
-
-	def geo2ned(self):
+	def geo2ned(self, latitude, longitude, depth, index):
 		R_e = rospy.get_param('/R_e') 
 		R_p = rospy.get_param('/R_p')
 		e = math.sqrt(1 - (R_p*R_p)/(R_e*R_e))
-		N_e_auv = R_e/(math.sqrt(1 - e*e*math.sin(self.latitude)*math.sin(self.latitude)))
-		x_ecef_auv = (N_e_auv - self.depth) * math.cos(self.latitude) * math.cos(self.longitude) # h = - depth
-		y_ecef_auv = (N_e_auv - self.depth) * math.cos(self.latitude) * math.sin(self.longitude)
-		z_ecef_auv = (N_e_auv * (1 - e*e) - self.depth) * math.sin(self.latitude)
-		coords_ecef_auv = np.array([[x_ecef_auv, y_ecef_auv, z_ecef_auv]]).T
+		N_e = R_e/(math.sqrt(1 - e*e*math.sin(latitude)*math.sin(latitude)))
+		x_ecef = (N_e - depth) * math.cos(latitude) * math.cos(longitude) 							# h = - depth
+		y_ecef = (N_e - depth) * math.cos(latitude) * math.sin(longitude)
+		z_ecef = (N_e * (1 - e*e) - depth) * math.sin(latitude)
+		coords_ecef = np.array([[x_ecef, y_ecef, z_ecef]]).T
 	
 		N_e_ned_frame = R_e/(math.sqrt(1-e*e*math.sin(self.latitude_ned)*math.sin(self.latitude_ned)))
 		x_ecef_ned_frame = (N_e_ned_frame - self.depth_ned) * math.cos(self.latitude_ned) * math.cos(self.longitude_ned)
@@ -59,10 +55,15 @@ class AUV:
 		r33 = -math.sin(self.latitude_ned)
 		R_ned_ecef = np.matrix([[r11, r12, r13],[r21, r22, r23],[r31, r32, r33]])
 
-		coords_ned_auv = R_ned_ecef*(coords_ecef_auv - coords_ecef_ned_frame)		
-		self.x = coords_ned_auv.item(0)
-		self.y = coords_ned_auv.item(1)
-		self.z = coords_ned_auv.item(2)
+		coords_ned = R_ned_ecef*(coords_ecef - coords_ecef_ned_frame)		
+		if index == -1:
+			self.x = coords_ned.item(0)
+			self.y = coords_ned.item(1)
+			self.z = coords_ned.item(2)
+		else:
+			self.waypoints[index].x = coords_ned.item(0)
+			self.waypoints[index].y = coords_ned.item(1)
+			self.waypoints[index].z = coords_ned.item(2)
 
 	def update(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz):
 		self.latitude = latitude
@@ -74,7 +75,7 @@ class AUV:
 		self.vx = vx
 		self.vy = vy
 		self.vz = vz
-		self.geo2ned()
+		self.geo2ned(self.latitude, self.longitude, self.depth, -1)
 	
 
 

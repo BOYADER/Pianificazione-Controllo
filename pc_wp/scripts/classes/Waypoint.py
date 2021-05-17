@@ -6,4 +6,7 @@ class Waypoint:
 		self.longitude = longitude
 		self.depth = depth
 		self.tolerance = tolerance
+		self.x = None
+		self.y = None
+		self.z = None
 
