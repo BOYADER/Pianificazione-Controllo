@@ -34,12 +34,16 @@ def odom_callback(odom, pub):
 	global auv
 	if not auv.strategy:
 		#calcolare pitch desiderato a partire dalla posizione dell'auv (odom.lla -> x y z) e dalla posizione del prossimo waypoint
-		#controllare se pitch desiderato è minore di critical_pitch, se sì auv.strategy = 1 else auv.strategy = 2
+		#controllare se pitch desiderato e' minore di critical_pitch, se si auv.strategy = 1 else auv.strategy = 2
 		#inizializzare auv.task_seq a seconda della strategia
 		#publish messaggio con task corrente		
-		print(auv.task_index)
-		print(auv.task_seq)
-		print(auv.waypoints[0].latitude)
+		auv.ned(odom.lla.x, odom.lla.y, odom.lla.z)
+		auv.strategy = 1
+		auv.update(odom.lla.x, odom.lla.y, odom.lla.z, odom.rpy.x, odom.rpy.y, odom.rpy.z, odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
+		print(auv.x, auv.y, auv.z)
+	else:
+		auv.update(odom.lla.x, odom.lla.y, odom.lla.z, odom.rpy.x, odom.rpy.y, odom.rpy.z, odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
+		print(auv.x, auv.y, auv.z)
 
 def ref_callback(ref):
 	global references
