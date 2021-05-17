@@ -28,7 +28,9 @@ def init_waypoints():
 		longitude = rospy.get_param(string_param)['longitude']
 		depth = rospy.get_param(string_param)['depth']
 		auv.waypoints.append(Waypoint(latitude, longitude, depth, tolerance))
+		print(auv.waypoints[index-1].latitude, auv.waypoints[index-1].longitude, auv.waypoints[index-1].depth)
 		auv.geo2ned(latitude, longitude, depth, index-1)
+		print(auv.waypoints[index-1].x, auv.waypoints[index-1].y, auv.waypoints[index-1].z)
 		index = index + 1
 		
 def odom_callback(odom, pub):

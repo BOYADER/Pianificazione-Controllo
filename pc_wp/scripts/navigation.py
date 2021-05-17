@@ -7,8 +7,8 @@ def navigation():
 	rospy.init_node('navigation')
 	rate = rospy.Rate(1) # 1hz
 	odom_msg = Odom()
-	odom_msg.lla.x = 49.110735 
-	odom_msg.lla.y = 8.640827 
+	odom_msg.lla.x = 45.110735 
+	odom_msg.lla.y = 7.640827 
 	odom_msg.lla.z = 0
 	odom_msg.rpy.x = 30
 	odom_msg.rpy.y = 60
@@ -19,8 +19,8 @@ def navigation():
 	while not rospy.is_shutdown():
 		rospy.loginfo(odom_msg)
 		pub.publish(odom_msg)
-		odom_msg.lla.z = odom_msg.lla.z - 0.01
-		odom_msg.lla.x = odom_msg.lla.x + 0.000001
+		#odom_msg.lla.z = odom_msg.lla.z - 0.01
+		#odom_msg.lla.x = odom_msg.lla.x + 0.000001
 		rate.sleep()
 
 if __name__ == '__main__':
