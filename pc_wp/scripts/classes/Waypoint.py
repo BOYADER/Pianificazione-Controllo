@@ -6,5 +6,4 @@ class Waypoint:
 		self.longitude = longitude
 		self.depth = depth
 		self.tolerance = tolerance
-	
-waypoints = []
+
