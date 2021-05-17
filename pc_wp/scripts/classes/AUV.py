@@ -56,7 +56,7 @@ class AUV:
 		r33 = -math.sin(self.latitude_ned)
 		R_ned_ecef = np.matrix([[r11, r12, r13],[r21, r22, r23],[r31, r32, r33]])
 
-		coords_ned = R_ned_ecef*(coords_ecef - coords_ecef_ned_frame)
+		coords_ned = R_ned_ecef.dot(coords_ecef - coords_ecef_ned_frame)
 		
 		if index == -1:
 			self.x = coords_ned.item(0)
@@ -76,9 +76,9 @@ class AUV:
 			longitude = rospy.get_param(string_param)['longitude']
 			depth = rospy.get_param(string_param)['depth']
 			self.waypoints.append(Waypoint(latitude, longitude, depth, tolerance))
-			#print(auv.waypoints[index-1].latitude, auv.waypoints[index-1].longitude, auv.waypoints[index-1].depth)
+			print(self.waypoints[index-1].latitude, self.waypoints[index-1].longitude, self.waypoints[index-1].depth)
 			self.geo2ned(latitude, longitude, depth, index-1)
-			#print(auv.waypoints[index-1].x, auv.waypoints[index-1].y, auv.waypoints[index-1].z)
+			print(self.waypoints[index-1].x, self.waypoints[index-1].y, self.waypoints[index-1].z)
 			index = index + 1	
 	
 	def update(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz):
