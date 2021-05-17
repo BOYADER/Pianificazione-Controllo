@@ -52,9 +52,8 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
    FILES
    Odom.msg
-   Task.msg
+   State.msg
    References.msg
-   RPY.msg
 )
 
 ## Generate services in the 'srv' folder
