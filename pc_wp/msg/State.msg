@@ -1,2 +1,2 @@
-string strategy
+int16 strategy
 string task
