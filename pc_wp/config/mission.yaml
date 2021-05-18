@@ -33,5 +33,4 @@ waypoint_list:
 
 tolerance_on_waypoint: 10           #[m] 
 
-critical_pitch: 20                  #[°]
 

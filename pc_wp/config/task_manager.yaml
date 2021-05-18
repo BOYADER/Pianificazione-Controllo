@@ -1,12 +1,19 @@
 critical_pitch: 20                  #[°]
 
+tolerance_degrees: 5                #[°]
+tolerance_meters: 2                 #[°]
+
 task_seq_list:                      # strategy 0: not set - init
   ts1:                              # strategy 1: pitch_des < critical_pitch
-    - ROTATE
+    - YAW     
+    - PITCH   
     - SURGE
     - APPROACH
   ts2:                              # strategy 2: pitch_des > critical_pitch
-    - ROTATE
+    - PITCH
+    - YAW    
     - HEAVE
     - SURGE
     - APPROACH
+
+control_radius: 20                  #[m]
