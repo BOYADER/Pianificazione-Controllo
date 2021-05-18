@@ -3,14 +3,10 @@ import pymap3d as pm
 
 class Waypoint:
 	def __init__(self, latitude, longitude, depth, latitude_ned, longitude_ned, depth_ned, tolerance):
-		self.latitude = latitude
-		self.longitude = longitude
-		self.depth = depth
-		self.latitude_ned = latitude_ned
-		self.longitude_ned = longitude_ned
-		self.depth_ned = depth_ned
+		self.lld = [latitude, longitude, depth]
+		self.lld_ned = [latitude_ned, longitude_ned, depth_ned]
 		self.tolerance = tolerance
-		self.x = pm.geodetic2ned(self.latitude, self.longitude, self.depth, self.latitude_ned, self.longitude_ned, self.depth_ned)[0]
-		self.y = pm.geodetic2ned(self.latitude, self.longitude, self.depth, self.latitude_ned, self.longitude_ned, self.depth_ned)[1]
-		self.z = pm.geodetic2ned(self.latitude, self.longitude, self.depth, self.latitude_ned, self.longitude_ned, self.depth_ned)[2]
+		self.eta_1 = [	pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[0],
+										pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[1],
+										pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[2]]
 

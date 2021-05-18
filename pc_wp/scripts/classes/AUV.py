@@ -7,24 +7,14 @@ from Waypoint import Waypoint
 
 class AUV:
 	def __init__(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz, critical_pitch, control_radius, tolerance_degrees, tolerance_meters):
-		self.latitude = latitude
-		self.longitude = longitude
-		self.depth = depth
-		self.latitude_ned = latitude
-		self.longitude_ned = longitude
-		self.depth_ned = depth
-		self.roll = roll
-		self.pitch = pitch
-		self.yaw = yaw
-		self.pitch_des = None
-		self.yaw_des = None
+		self.lld = [latitude, longitude, depth]
+		self.lld_ned = [latitude, longitude, depth]
+		self.eta_1 = [	pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[0],
+										pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[1],
+										pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[2]]
+		self.eta_2 = [roll, pitch, yaw]
+		self.ni_1 = [vx, vy, vz]
 		self.critical_pitch = critical_pitch
-		self.x = pm.geodetic2ned(self.latitude, self.longitude, -self.depth, self.latitude_ned, self.longitude_ned, -self.depth_ned)[0]
-		self.y = pm.geodetic2ned(self.latitude, self.longitude, -self.depth, self.latitude_ned, self.longitude_ned, -self.depth_ned)[1]
-		self.z = pm.geodetic2ned(self.latitude, self.longitude, -self.depth, self.latitude_ned, self.longitude_ned, -self.depth_ned)[2]
-		self.vx = vx
-		self.vy = vy
-		self.vz = vz
 		self.strategy = 0
 		self.task_seq = []
 		self.task_index = 0
@@ -42,41 +32,32 @@ class AUV:
 			latitude = rospy.get_param(string_param)['latitude']
 			longitude = rospy.get_param(string_param)['longitude']
 			depth = rospy.get_param(string_param)['depth']
-			self.waypoints.append(Waypoint(latitude, longitude, depth, self.latitude_ned, self.longitude_ned, self.depth_ned, tolerance))
-			#print(self.waypoints[index-1].x,self.waypoints[index-1].y,self.waypoints[index-1].z)
+			self.waypoints.append(Waypoint(latitude, longitude, depth, self.lld_ned[0], self.lld_ned[1], self.lld_ned[2], tolerance))
+			print("Waypoint %d coords [NED]: [%s, %s, %s]" % (index, self.waypoints[index-1].eta_1[0],self.waypoints[index-1].eta_1[1],self.waypoints[index-1].eta_1[2]))
 			index = index + 1	
 	
-	def pitch_desired(self):
-		self.pitch_des = math.degrees(np.arctan2((self.waypoints[self.wp_index].z - self.z),(self.waypoints[self.wp_index].x - self.x)))
-	
-	#def yaw_desired(self):
-		#self.yaw_des = math.degrees(np.arctan2((self.waypoints[self.wp_index].y - self.y),(self.waypoints[self.wp_index].x - self.x)))
+	def pitch_des(self):
+		pitch_des = math.degrees(-np.arctan2((self.waypoints[self.wp_index].eta_1[2] - self.eta_1[2]),(self.waypoints[self.wp_index].eta_1[0] - self.eta_1[0])))
+		return pitch_des
 	
 	def update(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz):
-		self.latitude = latitude
-		self.longitude = longitude
-		self.depth = depth
-		self.roll = math.degrees(roll)
-		self.pitch = math.degrees(pitch)
-		self.yaw = math.degrees(yaw)
-		self.vx = vx
-		self.vy = vy
-		self.vz = vz
-		self.x = pm.geodetic2ned(self.latitude, self.longitude, -self.depth, self.latitude_ned, self.longitude_ned, -self.depth_ned)[0]
-		self.y = pm.geodetic2ned(self.latitude, self.longitude, -self.depth, self.latitude_ned, self.longitude_ned, -self.depth_ned)[1]
-		self.z = pm.geodetic2ned(self.latitude, self.longitude, -self.depth, self.latitude_ned, self.longitude_ned, -self.depth_ned)[2]
-	
+		self.lld = [latitude, longitude, depth]
+		self.eta_2 = [roll, pitch, yaw]
+		self.ni_1 = [vx, vy, vz]
+		self.eta_1 = [	pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[0],
+										pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[1],
+										pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[2]]
 	def task_error(self, references):
 		if self.task_seq[self.task_index] == 'YAW':
-			error = references.rpy.yaw - self.yaw
+			error = references.rpy.z - self.eta_2[2]
 		elif self.task_seq[self.task_index] == 'PITCH':
-			error = references.rpy.pitch - self.pitch
+			error = references.rpy.y - self.eta_2[1]
 		elif self.task_seq[self.task_index] == 'SURGE':
-			error = math.sqrt((self.x*self.x - self.waypoints[self.wp_index].x*self.waypoints[self.wp_index].x) + (self.y*self.y - self.waypoints[self.wp_index].y*self.waypoints[self.wp_index].y) + (self.z*self.z - self.waypoints[self.wp_index].z*self.waypoints[self.wp_index].z) - self.control_radius*self.control_radius) 											
+			error = math.sqrt((self.eta_1[0]*self.eta_1[0] - self.waypoints[self.wp_index].eta_1[0]*self.waypoints[self.wp_index].eta_1[0]) + (self.eta_1[1]*self.eta_1[1] - self.waypoints[self.wp_index].eta_1[1]*self.waypoints[self.wp_index].eta_1[1]) + (self.eta_1[2]*self.eta_1[2] - self.waypoints[self.wp_index].eta_1[2]*self.waypoints[self.wp_index].eta_1[2]) - self.control_radius*self.control_radius) 											
 		elif self.task_seq[self.task_index] == 'HEAVE':
-			error = references.pos.z - self.z
+			error = references.pos.z - self.eta_1[2]
 		elif self.task_seq[self.task_index] == 'APPROACH':
-			error = math.sqrt((self.x*self.x - self.waypoints[self.wp_index].x*self.waypoints[self.wp_index].x) + (self.y*self.y - self.waypoints[self.wp_index].y*self.waypoints[self.wp_index].y) + (self.z*self.z - self.waypoints[self.wp_index].z*self.waypoints[self.wp_index].z) - self.waypoints[self.wp_index].tolerance*self.waypoints[self.wp_index].tolerance) 
+			error = math.sqrt((self.eta_1[0]*self.eta_1[0] - self.waypoints[self.wp_index].eta_1[0]*self.waypoints[self.wp_index].eta_1[0]) + (self.eta_1[1]*self.eta_1[1] - self.waypoints[self.wp_index].eta_1[1]*self.waypoints[self.wp_index].eta_1[1]) + (self.eta_1[2]*self.eta_1[2] - self.waypoints[self.wp_index].eta_1[2]*self.waypoints[self.wp_index].eta_1[2]) - self.waypoints[self.wp_index].tolerance*self.waypoints[self.wp_index].tolerance) 
 		return error
 
 
