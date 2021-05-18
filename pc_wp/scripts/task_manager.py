@@ -15,10 +15,10 @@ def odom_callback(odom, pub):
 		control_radius = rospy.get_param('/control_radius')
 		tolerance_degrees = rospy.get_param('/tolerance_degrees')
 		tolerance_meters = rospy.get_param('/tolerance_meters')
-		auv = AUV(odom.lla.x, odom.lla.y, odom.lla.z,
-							odom.rpy.x, odom.rpy.y, odom.rpy.z,
-							odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z,
-							critical_pitch, control_radius, tolerance_degrees, tolerance_meters)
+		auv = AUV(	odom.lla.x, odom.lla.y, odom.lla.z,
+				odom.rpy.x, odom.rpy.y, odom.rpy.z,
+				odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z,
+				critical_pitch, control_radius, tolerance_degrees, tolerance_meters)
 		auv.init_waypoints()
 		pitch_des = auv.pitch_des()
 		print("pitch_des: %s" % str(pitch_des))
@@ -28,8 +28,8 @@ def odom_callback(odom, pub):
 			auv.strategy = 2
 	else:
 		auv.update(	odom.lla.x, odom.lla.y, odom.lla.z,
-							 	odom.rpy.x, odom.rpy.y, odom.rpy.z,
-								odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
+				odom.rpy.x, odom.rpy.y, odom.rpy.z,
+				odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
 		task_error = auv.task_error(references)
 		print("%s error: %s" % (auv.task_seq[auv.task_index], str(abs(task_error))))
 		if auv.task_index <= 2:
