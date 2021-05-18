@@ -35,13 +35,3 @@ tolerance_on_waypoint: 10           #[m]
 
 critical_pitch: 20                  #[°]
 
-task_seq_list:                      # strategy 0: not set - init
-  ts1:                              # strategy 1: pitch_des < critical_pitch
-    - ROTATE
-    - SURGE
-    - APPROACH
-  ts2:                              # strategy 2: pitch_des > critical_pitch
-    - ROTATE
-    - HEAVE
-    - SURGE
-    - APPROACH
