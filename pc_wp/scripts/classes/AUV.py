@@ -16,6 +16,8 @@ class AUV:
 		self.roll = roll
 		self.pitch = pitch
 		self.yaw = yaw
+		self.pitch_des = None
+		self.yaw_des = None
 		self.critical_pitch = critical_pitch
 		self.x = pm.geodetic2ned(self.latitude, self.longitude, self.depth, self.latitude_ned, self.longitude_ned, self.depth_ned)[0]
 		self.y = pm.geodetic2ned(self.latitude, self.longitude, self.depth, self.latitude_ned, self.longitude_ned, self.depth_ned)[1]
@@ -40,6 +42,12 @@ class AUV:
 			self.waypoints.append(Waypoint(latitude, longitude, depth, self.latitude_ned, self.longitude_ned, self.depth_ned, tolerance))
 			print(self.waypoints[index-1].x,self.waypoints[index-1].y,self.waypoints[index-1].z)
 			index = index + 1	
+	
+	def pitch_desired(self):
+		self.pitch_des = - np.arctan2((self.waypoints[self.wp_index].z - self.z),(self.waypoints[self.wp_index].x - self.x))
+	
+	def yaw_desired(self):
+		self.yaw_des = np.arctan2((self.waypoints[self.wp_index].y - self.y),(self.waypoints[self.wp_index].x - self.x))
 	
 	def update(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz):
 		self.latitude = latitude
