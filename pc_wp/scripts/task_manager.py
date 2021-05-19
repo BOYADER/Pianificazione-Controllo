@@ -11,7 +11,7 @@ references = References()
 def odom_callback(odom, pub):
 	global auv, references
 	if not auv:
-		auv = AUV(	odom.lla.x, odom.lla.y, odom.lla.z,		# create AUV object
+		auv = AUV(	odom.lld.x, odom.lld.y, odom.lld.z,		# create AUV object
 				odom.rpy.x, odom.rpy.y, odom.rpy.z,
 				odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
 		auv.init_waypoints()						# init waypoint list
