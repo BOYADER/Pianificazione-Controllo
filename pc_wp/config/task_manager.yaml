@@ -13,7 +13,7 @@ task_seq_list:                      # strategy 0: not set - init
     - SURGE
     - APPROACH
 
-error_tolerances_list:
+task_tolerance_list:
   YAW:       3                      #[°]
   PITCH:     3                      #[°]
   HEAVE:     3                      #[m]

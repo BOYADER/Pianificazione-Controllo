@@ -51,7 +51,7 @@ class AUV:
 		print("strategy: %d, task_seq: %s" % (self.strategy, self.task_seq))
 	
 	def set_tolerance(self):			# set task tolerance error
-		string_param = '/error_tolerances_list/' + self.task_seq[self.task_index]
+		string_param = '/task_tolerance_list/' + self.task_seq[self.task_index]
 		self.tolerance = rospy.get_param(string_param)
 
 	def update(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz):
