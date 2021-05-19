@@ -1,11 +1,8 @@
 critical_pitch: 20                  #[°]
 
-tolerance_degrees: 5                #[°]
-tolerance_meters: 2                 #[°]
-
 task_seq_list:                      # strategy 0: not set - init
   ts1:                              # strategy 1: pitch_des < critical_pitch
-    - YAW     
+    - YAW   
     - PITCH   
     - SURGE
     - APPROACH
@@ -16,4 +13,11 @@ task_seq_list:                      # strategy 0: not set - init
     - SURGE
     - APPROACH
 
-control_radius: 20                  #[m]
+approach_radius: 20                  #[m]
+
+error_tolerances_list:
+  YAW:       3                      #[°]
+  PITCH:     3                      #[°]
+  HEAVE:     5                      #[m]
+  SURGE:     5                      #[m]
+  APPROACH: 10                      #[m]    same as tolerance_on_waypoint in mission.yaml
