@@ -18,6 +18,6 @@ approach_radius: 20                  #[m]
 error_tolerances_list:
   YAW:       3                      #[°]
   PITCH:     3                      #[°]
-  HEAVE:     5                      #[m]
-  SURGE:     5                      #[m]
+  HEAVE:     1                      #[m]
+  SURGE:     1                      #[m]
   APPROACH: 10                      #[m]    same as tolerance_on_waypoint in mission.yaml
