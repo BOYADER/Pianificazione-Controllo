@@ -23,7 +23,7 @@ class AUV:
 		self.approach_radius = rospy.get_param('/approach_radius')
 		self.tolerance = None
 				
-	def init_waypoints(self):			# init waypoints array, params from mission.yaml file
+	def init_waypoints(self):			# init waypoint array, params from mission.yaml file
 		index = 1
 		while index <= len(rospy.get_param('/waypoint_list')):
 			string_param = '/waypoint_list/wp' + str(index)
@@ -34,7 +34,7 @@ class AUV:
 			print("Waypoint %d coords [NED]: [%s, %s, %s]" % (index, self.waypoints[index-1].eta_1[0],self.waypoints[index-1].eta_1[1],self.waypoints[index-1].eta_1[2]))
 			index = index + 1	
 	
-	def pitch_desired(self):		# compute pitch_des in order to decide the strategy
+	def pitch_desired(self):			# compute pitch_des in order to decide the strategy
 		pitch_des = math.degrees(-np.arctan2((self.waypoints[self.wp_index].eta_1[2] - self.eta_1[2]),(self.waypoints[self.wp_index].eta_1[0] - self.eta_1[0])))							# pitch_des = - atan2(wp.z - auv.z, wp.x - auv.x)
 		return pitch_des
 	
@@ -47,7 +47,7 @@ class AUV:
 		self.task_seq = rospy.get_param(string_param)
 		self.task_index = 0
 	
-	def set_tolerance(self):							# set task tolerance error
+	def set_tolerance(self):			# set task tolerance error
 		string_param = '/error_tolerances_list/' + self.task_seq[self.task_index]
 		self.tolerance = rospy.get_param(string_param)
 
