@@ -32,6 +32,7 @@ def odom_callback(odom, pub):
 				auv.wp_index = auv.wp_index + 1			# next waypoint, TODO: check waypoint list
 				pitch_des = auv.pitch_desired()			# compute pitch_des to decide the strategy
 				auv.set_strategy(pitch_des)			# strategy determined, task_seq initialized		
+				auv.set_tolerance()
 			else:																					# task completed, waypoint not yet approached
 				auv.task_index = auv.task_index + 1		# next task
 				auv.set_tolerance()				# update task tolerance
