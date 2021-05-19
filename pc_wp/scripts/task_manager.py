@@ -38,6 +38,7 @@ def odom_callback(odom, pub):
 	state = State()								# prepare msg State to task_nodes
 	state.strategy = auv.strategy
 	state.task = auv.task_seq[auv.task_index]
+	print("current_task: %s" % state.task)
 	pub.publish(state)							# msg published to topic
 
 def ref_callback(ref):
