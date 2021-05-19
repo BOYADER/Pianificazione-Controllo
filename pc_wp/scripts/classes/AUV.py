@@ -34,8 +34,8 @@ class AUV:
 			print("Waypoint %d coords [NED]: [%s, %s, %s]" % (index, self.waypoints[index-1].eta_1[0],self.waypoints[index-1].eta_1[1],self.waypoints[index-1].eta_1[2]))
 			index = index + 1	
 	
-	def pitch_desired(self):			# compute pitch_des in order to decide the strategy
-		pitch_des = math.degrees(-np.arctan2((self.waypoints[self.wp_index].eta_1[2] - self.eta_1[2]),(self.waypoints[self.wp_index].eta_1[0] - self.eta_1[0])))							# pitch_des = - atan2(wp.z - auv.z, wp.x - auv.x)
+	def pitch_desired(self):			# compute pitch_des in order to decide the strategy: pitch_des = - atan2(wp.z - auv.z, wp.x - auv.x)
+		pitch_des = math.degrees(-np.arctan2((self.waypoints[self.wp_index].eta_1[2] - self.eta_1[2]),(self.waypoints[self.wp_index].eta_1[0] - self.eta_1[0])))
 		return pitch_des
 	
 	def set_strategy(self, pitch_des):		# strategy and task_seq setting 
