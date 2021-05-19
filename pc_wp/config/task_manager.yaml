@@ -7,7 +7,7 @@ task_seq_list:                      # strategy 0: not set - init
     - SURGE
     - APPROACH
   ts2:                              # strategy 2: pitch_des > critical_pitch
-    - PITCH
+    - PITCH                         # set pitch to 0
     - YAW    
     - HEAVE
     - SURGE
