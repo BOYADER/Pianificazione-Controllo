@@ -11,12 +11,12 @@ references = References()
 def odom_callback(odom, pub):
 	global auv, references
 	if not auv:
-		auv = AUV(	odom.lla.x, odom.lla.y, odom.lla.z,
+		auv = AUV(	odom.lla.x, odom.lla.y, odom.lla.z,	# create AUV object
 				odom.rpy.x, odom.rpy.y, odom.rpy.z,
 				odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
-		auv.init_waypoints()
-		pitch_des = auv.pitch_desired()
-		auv.set_strategy(pitch_des)
+		auv.init_waypoints()														# init waypoint list
+		pitch_des = auv.pitch_desired()									# compute pitch_des to decide the strategy
+		auv.set_strategy(pitch_des)											# strategy determined, task_seq initialized
 		print("pitch_des: %s" % str(pitch_des))
 		auv.set_strategy(pitch_des)											# set strategy and tasks_sequence
 		auv.set_tolerance()															# set task tolerance error 
