@@ -28,7 +28,7 @@ def odom_callback(odom, pub):
 		print("%s error: %s" % (auv.task_seq[auv.task_index], str(abs(task_error))))		
 		if abs(task_error) < auv.tolerance:				# check if current task is completed or not
 			if auv.task_index == (len(auv.task_seq) - 1):		# waypoint approached
-				auv.task_index = 0			# task_index reset
+				auv.task_index = 0				# task_index reset
 				auv.wp_index = auv.wp_index + 1			# next waypoint, TODO: check waypoint list
 				pitch_des = auv.pitch_desired()			# compute pitch_des to decide the strategy
 				auv.set_strategy(pitch_des)			# strategy determined, task_seq initialized		
