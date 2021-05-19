@@ -10,12 +10,12 @@ def navigation():
 	odom_msg.lla.x = 45.110735 
 	odom_msg.lla.y = 7.640827 
 	odom_msg.lla.z = 0
-	odom_msg.rpy.x = 30
-	odom_msg.rpy.y = 60
-	odom_msg.rpy.z = 90
-	odom_msg.lin_vel.x = 1.5
-	odom_msg.lin_vel.y = 0.1
-	odom_msg.lin_vel.z = 0.1
+	odom_msg.rpy.x = 0
+	odom_msg.rpy.y = 0
+	odom_msg.rpy.z = 0
+	odom_msg.lin_vel.x = 0
+	odom_msg.lin_vel.y = 0
+	odom_msg.lin_vel.z = 0
 	while not rospy.is_shutdown():
 		rospy.loginfo(odom_msg)
 		pub.publish(odom_msg)
