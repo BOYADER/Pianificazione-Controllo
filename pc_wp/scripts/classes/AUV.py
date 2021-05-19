@@ -20,7 +20,6 @@ class AUV:
 		self.waypoints = []
 		self.wp_index = 0
 		self.critical_pitch = rospy.get_param('/critical_pitch')
-		self.approach_radius = rospy.get_param('/approach_radius')
 		self.tolerance = None
 				
 	def init_waypoints(self):			# init waypoint array, params from mission.yaml file
