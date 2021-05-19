@@ -23,7 +23,7 @@ class AUV:
 		self.approach_radius = rospy.get_param('/approach_radius')
 		self.tolerance = None
 				
-	def init_waypoints(self):			# init waypoints array, params from mission.yaml file
+	def init_waypoints(self):			# init waypoint array, params from mission.yaml file
 		index = 1
 		while index <= len(rospy.get_param('/waypoint_list')):
 			string_param = '/waypoint_list/wp' + str(index)
