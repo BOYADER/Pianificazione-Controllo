@@ -11,8 +11,8 @@ def navigation():
 	odom_msg.lla.y = 7.640827 
 	odom_msg.lla.z = 0
 	odom_msg.rpy.x = 0
-	odom_msg.rpy.y = 0
-	odom_msg.rpy.z = 0
+	odom_msg.rpy.y = 10
+	odom_msg.rpy.z = 30
 	odom_msg.lin_vel.x = 0
 	odom_msg.lin_vel.y = 0
 	odom_msg.lin_vel.z = 0

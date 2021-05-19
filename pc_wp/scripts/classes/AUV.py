@@ -43,11 +43,11 @@ class AUV:
 			self.strategy = 1
 		else:
 			self.strategy = 2
-		string_param = '/task_seq_list/ts' + str(auv.strategy)
+		string_param = '/task_seq_list/ts' + str(self.strategy)
 		self.task_seq = rospy.get_param(string_param)
 		self.task_index = 0
 	
-	def set_tolerance(self)							# set task tolerance error
+	def set_tolerance(self):							# set task tolerance error
 		string_param = '/error_tolerances_list/' + self.task_seq[self.task_index]
 		self.tolerance = rospy.get_param(string_param)
 
