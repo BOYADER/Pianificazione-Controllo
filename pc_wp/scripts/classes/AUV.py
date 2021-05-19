@@ -30,11 +30,15 @@ class AUV:
 			longitude = rospy.get_param(string_param)['longitude']
 			depth = rospy.get_param(string_param)['depth']
 			self.waypoints.append(Waypoint(latitude, longitude, depth, self.lld_ned[0], self.lld_ned[1], self.lld_ned[2]))
-			print("Waypoint %d coords [NED]: [%s, %s, %s]" % (index, self.waypoints[index-1].eta_1[0],self.waypoints[index-1].eta_1[1],self.waypoints[index-1].eta_1[2]))
+			print("Waypoint %d coords [NED]: [%s, %s, %s]" % (	index,
+										self.waypoints[index-1].eta_1[0],
+										self.waypoints[index-1].eta_1[1],
+										self.waypoints[index-1].eta_1[2]))
 			index = index + 1	
 	
 	def pitch_desired(self):			# compute pitch_des in order to decide the strategy: pitch_des = - atan2(wp.z - auv.z, wp.x - auv.x)
-		pitch_des = math.degrees(-np.arctan2((self.waypoints[self.wp_index].eta_1[2] - self.eta_1[2]),(self.waypoints[self.wp_index].eta_1[0] - self.eta_1[0])))
+		pitch_des = math.degrees(-np.arctan2(	self.waypoints[self.wp_index].eta_1[2] - self.eta_1[2],
+							self.waypoints[self.wp_index].eta_1[0] - self.eta_1[0]))
 		return pitch_des
 	
 	def set_strategy(self, pitch_des):		# strategy and task_seq setting 
@@ -44,6 +48,7 @@ class AUV:
 			self.strategy = 2
 		string_param = '/task_seq_list/ts' + str(self.strategy)
 		self.task_seq = rospy.get_param(string_param)
+		print("strategy: %d, task_seq: %s" % (self.strategy, self.task_seq))
 	
 	def set_tolerance(self):			# set task tolerance error
 		string_param = '/error_tolerances_list/' + self.task_seq[self.task_index]
@@ -65,8 +70,10 @@ class AUV:
 		elif self.task_seq[self.task_index] == 'HEAVE':
 			error = references.pos.z - self.eta_1[2]
 		elif self.task_seq[self.task_index] == 'SURGE' or self.task_seq[self.task_index] == 'APPROACH':
-			error = math.sqrt((self.eta_1[0] - self.waypoints[self.wp_index].eta_1[0])**2 + (self.eta_1[1] - self.waypoints[self.wp_index].eta_1[1])**2 + (self.eta_1[2] - self.waypoints[self.wp_index].eta_1[2])**2) #sqrt[(auv.x - wp.x)^2 + (auv.y - wp.y)^2 + (auv.z - wp.z)^2]									
-		return error
+			error = math.sqrt(	(self.eta_1[0] - self.waypoints[self.wp_index].eta_1[0])**2 + 
+						(self.eta_1[1] - self.waypoints[self.wp_index].eta_1[1])**2 + 
+						(self.eta_1[2] - self.waypoints[self.wp_index].eta_1[2])**2) 
+		return error			#sqrt[(auv.x - wp.x)^2 + (auv.y - wp.y)^2 + (auv.z -wp.z)^2]					
 
 
 #def init_auv():
