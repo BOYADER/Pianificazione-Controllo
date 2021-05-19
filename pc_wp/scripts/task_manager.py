@@ -16,7 +16,6 @@ def odom_callback(odom, pub):
 				odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
 		auv.init_waypoints()						# init waypoint list
 		pitch_des = auv.pitch_desired()					# compute pitch_des to decide the strategy
-		auv.set_strategy(pitch_des)					# strategy determined, task_seq initialized
 		print("pitch_des: %s" % str(pitch_des))
 		auv.set_strategy(pitch_des)					# set strategy and task_sequence
 		auv.set_tolerance()						# set task tolerance error 
