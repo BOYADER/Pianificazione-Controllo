@@ -17,7 +17,7 @@ def navigation():
 	odom_msg.lin_vel.y = 0
 	odom_msg.lin_vel.z = 0
 	while not rospy.is_shutdown():
-		rospy.loginfo(odom_msg)
+		print(odom_msg)
 		pub.publish(odom_msg)
 		#odom_msg.lla.z = odom_msg.lla.z - 0.01
 		#odom_msg.lla.x = odom_msg.lla.x + 0.000001
