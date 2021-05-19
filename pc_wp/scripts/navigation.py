@@ -7,9 +7,9 @@ def navigation():
 	rospy.init_node('navigation')
 	rate = rospy.Rate(1) # 1hz
 	odom_msg = Odom()
-	odom_msg.lla.x = 45.110735 
-	odom_msg.lla.y = 7.640827 
-	odom_msg.lla.z = 0
+	odom_msg.lld.x = 45.110735 
+	odom_msg.lld.y = 7.640827 
+	odom_msg.lld.z = 0
 	odom_msg.rpy.x = 0
 	odom_msg.rpy.y = 10
 	odom_msg.rpy.z = 30

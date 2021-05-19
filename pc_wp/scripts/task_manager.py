@@ -20,7 +20,7 @@ def odom_callback(odom, pub):
 		auv.set_strategy(pitch_des)					# set strategy and task_sequence
 		auv.set_tolerance()						# set task tolerance error 
 	else:
-		auv.update(	odom.lla.x, odom.lla.y, odom.lla.z,		# update eta_1, eta_2, ni_1
+		auv.update(	odom.lld.x, odom.lld.y, odom.lld.z,		# update eta_1, eta_2, ni_1
 				odom.rpy.x, odom.rpy.y, odom.rpy.z,
 				odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
 		task_error = auv.task_error(references)				# task_error computation
