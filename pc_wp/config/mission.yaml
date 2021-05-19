@@ -31,6 +31,6 @@ waypoint_list:
     longitude: 7.642082             #[°]
     depth: 0.0                      #[m]
 
-tolerance_on_waypoint: 10           #[m]    same as APPROACH in task_manager.yaml
+tolerance_on_waypoint: 10           #[m]    same as error_tolerances_list/APPROACH in task_manager.yaml
 
 
