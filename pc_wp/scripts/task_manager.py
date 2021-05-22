@@ -14,7 +14,10 @@ def odom_callback(odom, pub):
 		auv = AUV(	odom.lld.x, odom.lld.y, odom.lld.z,		# create AUV object
 				odom.rpy.x, odom.rpy.y, odom.rpy.z,
 				odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
-		auv.init_waypoints()						# init waypoint list
+		rospy.set_param('ned_origin', {	'latitude': odom.lld.x, 	# set ned_origin on the utils.yaml file
+						'longitude': odom.lld.y,
+						'depth': odom.lld.z})
+		auv.set_waypoint()						# init waypoint list
 		pitch_des = auv.pitch_desired()					# compute pitch_des to decide the strategy
 		print("pitch_des: %s" % str(pitch_des))
 		auv.set_strategy(pitch_des)					# set strategy and task_sequence
@@ -28,11 +31,12 @@ def odom_callback(odom, pub):
 		if abs(task_error) < auv.tolerance:				# check if current task is completed or not
 			if auv.task_index == (len(auv.task_seq) - 1):		# waypoint approached
 				auv.task_index = 0				# task_index reset
-				auv.wp_index = auv.wp_index + 1			# next waypoint, TODO: check waypoint list
+				auv.wp_index = auv.wp_index + 1	
+				auv.set_waypoint()				# next waypoint, TODO: check waypoint list
 				pitch_des = auv.pitch_desired()			# compute pitch_des to decide the strategy
 				auv.set_strategy(pitch_des)			# set strategy and task_sequence		
 				auv.set_tolerance()				# set task tolerance error
-			else:																					# task completed, waypoint not yet approached
+			else:							# task completed, waypoint not yet approached
 				auv.task_index = auv.task_index + 1		# next task
 				auv.set_tolerance()				# update task tolerance
 	state = State()								# prepare msg State to task_nodes
