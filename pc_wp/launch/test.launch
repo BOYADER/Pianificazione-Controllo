@@ -2,4 +2,5 @@
 	<rosparam file="$(find pc_wp)/config/mission.yaml"/>
 	<rosparam file="$(find pc_wp)/config/task_manager.yaml"/>
 	<rosparam file="$(find pc_wp)/config/utils.yaml"/>
+	<rosparam file="$(find pc_wp)/config/rospy.yaml"/>
 </launch>
