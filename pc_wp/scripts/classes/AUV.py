@@ -36,6 +36,7 @@ class AUV:
 	def pitch_desired(self):			# compute pitch_des in order to decide the strategy: pitch_des = - atan2(wp.z - auv.z, wp.x - auv.x)
 		pitch_des = math.degrees(-np.arctan2(	self.waypoint.eta_1[2] - self.eta_1[2],
 							self.waypoint.eta_1[0] - self.eta_1[0]))
+		print("pitch_des: %s" % pitch_des)
 		return pitch_des
 	
 	def set_strategy(self, pitch_des):		# strategy and task_seq setting 
@@ -60,17 +61,24 @@ class AUV:
 		self.eta_2 = [roll, pitch, yaw]
 		self.ni_1 = [vx, vy, vz]
 		
+	def wrap2pi(self, angle):
+		if angle % 360 < 180:
+			return angle % 180
+		else:
+			return angle % (-180)
+	
 	def task_error(self, references):
 		if self.task_seq[self.task_index] == 'YAW':
-			error = references.rpy.z - self.eta_2[2]
+			error = self.wrap2pi(references.rpy.z - self.eta_2[2])
 		elif self.task_seq[self.task_index] == 'PITCH':
-			error = references.rpy.y - self.eta_2[1]
+			error = self.wrap2pi(references.rpy.y - self.eta_2[1])
 		elif self.task_seq[self.task_index] == 'HEAVE':
 			error = references.pos.z - self.eta_1[2]
 		elif self.task_seq[self.task_index] == 'SURGE' or self.task_seq[self.task_index] == 'APPROACH':
-			error = math.sqrt(	(self.eta_1[0] - self.waypoint.eta_1[0])**2 + 
-						(self.eta_1[1] - self.waypoint.eta_1[1])**2 + 
-						(self.eta_1[2] - self.waypoint.eta_1[2])**2) 
-		return error			#sqrt[(auv.x - wp.x)^2 + (auv.y - wp.y)^2 + (auv.z -wp.z)^2]					
+			error = math.sqrt(	(references.pos.x - self.eta_1[0])**2 + 	
+						(references.pos.y - self.eta_1[1])**2 + 
+						(references.pos.z - self.eta_1[2])**2) 
+		print("%s error: %s" % (self.task_seq[self.task_index], abs(error)))
+		return error							
 
 
