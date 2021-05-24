@@ -8,7 +8,7 @@ from pc_wp.msg import References, State, Odom
 
 strategy = None
 current_task = None
-last_task_rcvd = None		# last State.task received
+task_changed = False		
 
 yaw_angular_velocity = rospy.get_param('/yaw_angular_velocity')
 
@@ -37,24 +37,26 @@ def odom_callback(odom):
 		eta_2_init = eta_2
 
 def state_callback(state):
-	global strategy, current_task, last_task_rcvd, wp_index
+	global strategy, current_task, task_changed, wp_index
 	strategy = state.strategy
-	if current_task:
-		last_task_rcvd = current_task
+	if not current_task or current_task != state.task:
+		task_changed = True
 	current_task = state.task
 	wp_index = state.wp_index
 	
 def yaw_ref(yaw_ref):
-	global eta_2, time_start, last_task_rcvd, current_task, yaw_angular_velocity
-	if not last_task_rcvd or last_task_rcvd != current_task:
+	global eta_2, time_start, task_changed, current_task, yaw_angular_velocity
+	if not time_start or task_changed:
 		time_start = time.time()
+		task_changed = False
 	dt = time.time() - time_start	
 	ref = eta_2[2] + np.sign(yaw_ref - eta_2[2])*math.degrees(yaw_angular_velocity)*dt
 	print("ref_mini: %s, yaw_ref_final: %s" % (str(ref), str(yaw_ref)))
-	if (yaw_ref >= 0 and ref > yaw_ref) or (yaw_ref < 0 and ref < yaw_ref):
+	r = 0.6*ref + 0.4*eta_2[2]
+	if (yaw_ref >= 0 and r > yaw_ref) or (yaw_ref < 0 and r < yaw_ref):
 		return yaw_ref
 	else:
-		return ref
+		return r
 
 def ref_callback(ref):
 	global strategy, current_task, eta_1, eta_2
@@ -64,8 +66,9 @@ def ref_callback(ref):
 		error_z = ref.pos.z - eta_1[2]
 		error_pitch = ref.rpy.y - eta_2[1] #wrap to pi		
 		#error_yaw = yaw_ref(ref.rpy.z) - eta_2[2]
-		r = yaw_ref(ref.rpy.z)
-		print("riferimento da dare al cazzo di PID: %s" % str(r))
+		#r = 0.9*yaw_ref(ref.rpy.z) + 0.1*eta_2[2]
+		u = yaw_ref(ref.rpy.z)
+		print("riferimento da dare al cazzo di PID: %s" % str(u))
 
 def control():
 	rospy.init_node('control')
