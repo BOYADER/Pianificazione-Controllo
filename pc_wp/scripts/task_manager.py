@@ -53,7 +53,7 @@ def ref_callback(ref):
 
 def task_manager():
 	rospy.init_node('task_manager')
-	pub = rospy.Publisher('current_state', State, queue_size = QUEUE_SIZE)
+	pub = rospy.Publisher('state', State, queue_size = QUEUE_SIZE)
 	rospy.Subscriber('odom', Odom, odom_callback, pub)
 	rospy.Subscriber('references', References, ref_callback)
 	rospy.spin()

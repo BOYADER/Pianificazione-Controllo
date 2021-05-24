@@ -85,7 +85,7 @@ def state_callback(state, pub):
 def yaw_task():
 	rospy.init_node('yaw_task')
 	pub = rospy.Publisher('references', References, queue_size = QUEUE_SIZE)
-	rospy.Subscriber('current_state', State, state_callback, pub)
+	rospy.Subscriber('state', State, state_callback, pub)
 	rospy.Subscriber('odom', Odom, odom_callback)
 	rospy.spin()
 

@@ -22,7 +22,7 @@ def navigation():
 		print(odom_msg)
 		pub.publish(odom_msg)
 		#odom_msg.lla.z = odom_msg.lla.z - 0.01
-		odom_msg.lld.x = odom_msg.lld.x + 0.000001
+		#odom_msg.lld.x = odom_msg.lld.x + 0.000001
 		rate.sleep()
 
 if __name__ == '__main__':
