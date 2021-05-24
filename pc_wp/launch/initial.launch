@@ -2,19 +2,12 @@
 	<rosparam file="$(find pc_wp)/config/mission.yaml" />
 
 	<node pkg="pc_wp" type="navigation.py" name="navigation" />
-
 	<node pkg="pc_wp" type="control.py" name="control"/>
-
 	<node pkg="pc_wp" type="model.py" name="model"/>
-
 	<node pkg="pc_wp" type="orientation_task.py" name="orientation_task"/>
-
 	<node pkg="pc_wp" type="surge_motion_task.py" name="surge_motion_task"/>
-
 	<node pkg="pc_wp" type="task_manager.py" name="task_manager"/>
-
 	<node pkg="pc_wp" type="waypoint_approach_task.py" name="waypoint_approach_task"/>
-
 	<node pkg="pc_wp" type="heave_motion_task.py" name="heave_motion_task"/>
 	
 </launch>
