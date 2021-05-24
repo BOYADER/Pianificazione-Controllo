@@ -3,6 +3,7 @@ import math
 import numpy as np
 import pymap3d as pm
 import rospy
+from utils import wrap2pi
 from Waypoint import Waypoint
 
 class AUV:
@@ -34,14 +35,14 @@ class AUV:
 										self.waypoint.eta_1[2]))	
 	
 	def pitch_desired(self):			# compute pitch_des in order to decide the strategy: pitch_des = - atan2(wp.z - auv.z, wp.x - auv.x)
-		pitch_des = math.degrees(-np.arctan2(	self.waypoint.eta_1[2] - self.eta_1[2],
-							self.waypoint.eta_1[0] - self.eta_1[0]))
-		print("pitch_des: %s" % pitch_des)
+		pitch_des = -np.arctan2(	self.waypoint.eta_1[2] - self.eta_1[2],
+						self.waypoint.eta_1[0] - self.eta_1[0])
+		print("pitch_des: %s" % math.degrees(pitch_des))
 		return pitch_des
 	
 	def set_strategy(self, pitch_des):		# strategy and task_seq setting 
-		critical_pitch = rospy.get_param('/critical_pitch')		
-		if abs(pitch_des) < critical_pitch or abs(pitch_des) > (180 - critical_pitch):
+		critical_pitch = math.radians(rospy.get_param('/critical_pitch'))		
+		if abs(pitch_des) < critical_pitch or abs(pitch_des) > (math.pi - critical_pitch):
 			self.strategy = 1
 		else:
 			self.strategy = 2
@@ -51,7 +52,10 @@ class AUV:
 	
 	def set_tolerance(self):			# set task tolerance error
 		string_param = '/task_tolerance_list/' + self.task_seq[self.task_index]
-		self.tolerance = rospy.get_param(string_param)
+		if self.task_seq[self.task_index] == 'YAW' or self.task_seq[self.task_index] == 'PITCH':
+			self.tolerance = math.radians(rospy.get_param(string_param))
+		else:
+			self.tolerance = rospy.get_param(string_param)
 
 	def update(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz):
 		self.lld = [latitude, longitude, depth]
@@ -61,24 +65,22 @@ class AUV:
 		self.eta_2 = [roll, pitch, yaw]
 		self.ni_1 = [vx, vy, vz]
 		
-	def wrap2pi(self, angle):
-		if angle % 360 < 180:
-			return angle % 180
-		else:
-			return angle % (-180)
-	
 	def task_error(self, references):
+		error_degrees = None
 		if self.task_seq[self.task_index] == 'YAW':
-			error = self.wrap2pi(references.rpy.z - self.eta_2[2])
+			[error, error_degrees] = wrap2pi(references.rpy.z - self.eta_2[2])
 		elif self.task_seq[self.task_index] == 'PITCH':
-			error = self.wrap2pi(references.rpy.y - self.eta_2[1])
+			[error, error_degrees] = wrap2pi(references.rpy.y - self.eta_2[1])
 		elif self.task_seq[self.task_index] == 'HEAVE':
 			error = references.pos.z - self.eta_1[2]
 		elif self.task_seq[self.task_index] == 'SURGE' or self.task_seq[self.task_index] == 'APPROACH':
 			error = math.sqrt(	(references.pos.x - self.eta_1[0])**2 + 	
 						(references.pos.y - self.eta_1[1])**2 + 
-						(references.pos.z - self.eta_1[2])**2) 
-		print("%s error: %s" % (self.task_seq[self.task_index], abs(error)))
+						(references.pos.z - self.eta_1[2])**2)
+		if error_degrees is not None:
+			print("%s error: %s degrees" % (self.task_seq[self.task_index], error_degrees))
+		else:
+			print("%s error: %s meters" % (self.task_seq[self.task_index], error))
 		return error							
 
 

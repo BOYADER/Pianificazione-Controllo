@@ -5,9 +5,8 @@ import numpy as np
 import pymap3d as pm
 from classes.Waypoint import Waypoint
 from pc_wp.msg import References, State, Odom
+from utils import get_waypoint, clear_vars
 
-
-active = False
 
 yaw_ref = None
 yaw_angular_velocity = rospy.get_param('/yaw_angular_velocity')
@@ -16,7 +15,6 @@ prev_waypoint = None
 next_waypoint = None
 eta_1 = []
 eta_2 = []
-lld_ned = rospy.get_param('ned_origin')
 
 eta_1_init = None
 eta_2_init = None
@@ -24,7 +22,8 @@ eta_2_init = None
 QUEUE_SIZE = rospy.get_param('/QUEUE_SIZE')
 
 def odom_callback(odom):
-	global eta_1, eta_2, lld_ned, eta_1_init, eta_2_init
+	global eta_1, eta_2, eta_1_init, eta_2_init
+	lld_ned = rospy.get_param('ned_origin')
 	eta_1 = [	pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[0], 
 			pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[1],
 			pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[2]]
@@ -35,41 +34,24 @@ def odom_callback(odom):
 		eta_1_init = eta_1
 	if not eta_2_init:
 		eta_2_init = eta_2
-	print("eta_1: %s; eta_2: %s; eta_1_init: %s; eta_2_init: %s" % (eta_1, eta_2, eta_1_init, eta_2_init))
-
-def get_waypoint(index):
-	string_param = '/waypoint_list/wp' + str(index)			
-	latitude = rospy.get_param(string_param)['latitude']
-	longitude = rospy.get_param(string_param)['longitude']
-	depth = rospy.get_param(string_param)['depth']
-	waypoint = Waypoint(latitude, longitude, depth, lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'])
-	return waypoint
-
-def clear_vars():
-	global yaw_ref, prev_waypoint, next_waypoint, active, time_start, eta_1_init, eta_2_init
-	yaw_ref = None
-	time_start = None
-	eta_1_init = None	
-	eta_2_init = None
-	prev_waypoint = None
-	next_waypoint = None
-	
+	#print("eta_1: %s; eta_2: %s; eta_1_init: %s; eta_2_init: %s" % (eta_1, eta_2, eta_1_init, eta_2_init))
+	print("YAW: %s" % math.degrees(eta_2[2]))
 
 def state_callback(state, pub):
-	global active, prev_waypoint, next_waypoint, eta_1_init, eta_2_init, yaw_ref
+	global prev_waypoint, next_waypoint, eta_1_init, eta_2_init, yaw_ref
 	if state.task == 'YAW':
-		active = True
 		if not prev_waypoint and state.wp_index > 0:
 			prev_waypoint = get_waypoint(state.wp_index)
 			pos_ref = prev_waypoint
 		else:
-			pos_ref = eta_1_init			
+			while eta_1_init is None:
+				pass
+			pos_ref = eta_1_init		
 		if not next_waypoint:
 			next_waypoint = get_waypoint(state.wp_index+1)
 		if not yaw_ref:
-			yaw_ref = math.degrees(np.arctan2(	next_waypoint.eta_1[1] - eta_1[1],
-								next_waypoint.eta_1[0] - eta_1[0]))
-			print(yaw_ref)
+			yaw_ref = np.arctan2(	next_waypoint.eta_1[1] - eta_1[1],
+						next_waypoint.eta_1[0] - eta_1[0])
 		references = References()
 		references.pos.x = pos_ref[0]
 		references.pos.y = pos_ref[1]
@@ -77,10 +59,10 @@ def state_callback(state, pub):
 		references.rpy.x = eta_2_init[0]
 		references.rpy.y = eta_2_init[1]
 		references.rpy.z = yaw_ref
+		print("YAW REFERENCE: %s" % int(round(math.degrees(yaw_ref))))
 		pub.publish(references)
 	elif state.task != 'YAW':
-		active = False
-		clear_vars()
+		[prev_waypoint, next_waypoint, eta_1_init, eta_2_init, yaw_ref] = clear_vars([prev_waypoint, next_waypoint, eta_1_init, eta_2_init, yaw_ref])
 
 def yaw_task():
 	rospy.init_node('yaw_task')
