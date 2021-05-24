@@ -81,77 +81,77 @@ lld_seq:
 	
 rpy_seq: #un messaggio al secondo. ogni secondo si veicolo spazza 17°
   time0:
-	roll: 0
-	pitch: 0
-	yaw: 0
+	x: 0
+	y: 0
+	z: 0
   time1:
-	roll: 0
-	pitch: 0
-	yaw: 17
+	x: 0
+	y: 0
+	z: 17
    time2:
-	roll: 0
-	pitch: 0
-	yaw: 34
+	x: 0
+	y: 0
+	z: 34
    time3:
-	roll: 0
-	pitch: 0
-	yaw: 51
+	x: 0
+	y: 0
+	z: 51
    time4:
-	roll: 0
-	pitch: 0
-	yaw: 68
+	x: 0
+	y: 0
+	z: 68
    time5:
-	roll: 0
-	pitch: 0
-	yaw: 85
+	x: 0
+	y: 0
+	z: 85
    time6:
-	roll: 0
-	pitch: 0
-	yaw: 102
+	x: 0
+	y: 0
+	z: 102
    time7:
-	roll: 0
-	pitch: 0
-	yaw: 119
+	x: 0
+	y: 0
+	z: 119
    time8:
-	roll: 0 
-	pitch: 0
-	yaw: 135
+	x: 0 
+	y: 0
+	z: 135
    time9:
-	roll: 0
-	pitch: 0
-	yaw: 156
+	x: 0
+	y: 0
+	z: 156
    time10:
-	roll: 0
-	pitch: 0
-	yaw: 171
+	x: 0
+	y: 0
+	z: 171
    time11:
-	roll: 0
-	pitch: 0
-	yaw: 187
+	x: 0
+	y: 0
+	z: 187
    time12: #finita la fase di YAW, il task manager dovrebbe rilevare il passaggio alla fase successiva di PITCH
-	roll: 0
-	pitch: 2
-	yaw: 187
+	x: 0
+	y: 2
+	z: 187
    time13:
-	roll: 0
-	pitch: 4
-	yaw: 187
+	x: 0
+	y: 4
+	z: 187
    time14: #finita la fase di PITCH , segue la fase di SURGE => messaggi successivi di rpy rimangono uguali
-	roll: 0
+	x: 0
 	pitch: 4
-	yaw: 187
+	z: 187
    time15:
-	roll: 0
-	pitch: 4
-	yaw: 187
+	x: 0
+	y: 4
+	z: 187
    time16:
-	roll: 0
-	pitch: 4
-	yaw: 187
+	x: 0
+	y: 4
+	z: 187
    time17:
-	roll: 0
-	pitch: 4
-	yaw: 187
+	x: 0
+	y: 4
+	z: 187
  
 
 lin_vel_seq:
