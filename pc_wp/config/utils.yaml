@@ -1,4 +1,5 @@
 yaw_angular_velocity:  0.3 #[rad/s]
+pitch_angular_velocity: 0.1 #[rad/s]
 x_linear_velocity:  3 #[m/s]
 
 ned_origin:
