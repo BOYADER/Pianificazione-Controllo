@@ -1,6 +1,7 @@
 yaw_angular_velocity:  0.3 #[rad/s]
 pitch_angular_velocity: 0.1 #[rad/s]
 x_linear_velocity:  3 #[m/s]
+z_linear_velocity:  2 #[m/s]
 
 ned_origin:
   latitude: 0              #[°]
