@@ -51,14 +51,16 @@ def state_callback(state, pub):
 		pos_ref[0] = waypoint.eta_1[0]  #posizione del prossimo waypoint
 		pos_ref[1] = waypoint.eta_1[1]
 		pos_ref[2] = waypoint.eta_1[2]
+		
 		#scrivo i riferimenti
 		references = References()
-		references.pos.x = pos_ref[0]
+		references.pos.x = pos_ref[0]  #non lo useremo, lungo x avremo controllo di velocità
 		references.pos.y = pos_ref[1]
 		references.pos.z = pos_ref[2]
-		references.rpy.x = rpy_ref[0]
+		references.rpy.x = rpy_ref[0] #non lo useremo
 		references.rpy.y = rpy_ref[1]
 		references.rpy.z = rpy_ref[2]
+		references.lin_vel.x = 
 		pub.publish(references)
 	elif state.task != 'SURGE':
 		[waypoint, eta_1_init, eta_2_init] = clear_vars([waypoint, eta_1_init, eta_2_init])
