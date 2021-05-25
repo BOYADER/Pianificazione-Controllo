@@ -7,15 +7,10 @@ from classes.Waypoint import Waypoint
 from pc_wp.msg import References, State, Odom
 from utils import get_waypoint, clear_vars
 
-pitch_ref = None
-pitch_angular_velocity = ripsy.get_param('/yaw_angular_velocity'/2) #ipotizzo velocità angolare in pitch , metà di quella in yaw
+waypoint = None
 
-#all'inizio non si ha alcun riferimento per pitch in quanto non è noto a che punto della missione siamo - wp e pose - :
-prev_waypoint = None 
-next_waypoint = None
 eta_1 = []
 eta_2 = []
-
 eta_1_init = None
 eta_2_init = None
 
@@ -31,38 +26,36 @@ def odom_callback(odom):
 			odom.rpy.y,
 			odom.rpy.z]
 	if not eta_1_init:
-		eta_1_init = eta_1 #posa iniziale = prima stima 
+		eta_1_init = eta_1
 	if not eta_2_init:
 		eta_2_init = eta_2
 	#print("eta_1: %s; eta_2: %s; eta_1_init: %s; eta_2_init: %s" % (eta_1, eta_2, eta_1_init, eta_2_init))
-	print("PITCH: %s" % math.degrees(eta_2[1]))
+	print("YAW: %s" % math.degrees(eta_2[2]))
 
 def state_callback(state, pub):
-	global prev_waypoint, next_waypoint, eta_1_init, eta_2_init, pitch_ref
+	global waypoint, eta_1_init, eta_2_init
 	if state.task == 'PITCH':
-		if not prev_waypoint and state.wp_index > 0:
-			prev_waypoint = get_waypoint(state.wp_index)
-			pos_ref = prev_waypoint
-		else:
-			while eta_1_init is None: #non avevamo già assegnato il valore di eta_1 a eta_1_init?
+		while eta_1_init is None or eta_2_init is None:
 				pass
-			pos_ref = eta_1_init		
-		if not next_waypoint:
-			next_waypoint = get_waypoint(state.wp_index+1)
-		if not pitch_ref:
-			pitch_ref = np.arctan2(	next_waypoint.eta_1[2] - eta_1[2],
-						math.sqrt((next_waypoint.eta_1[0] - eta_1[0])**2+(next_waypoint.eta_1[1] - eta_1[1])**2)))
+		pos_ref = eta_1_init
+		rpy_ref = eta_2_init	
+		if not waypoint:
+			waypoint = get_waypoint(state.wp_index)
+		#riferimento pitch
+		rpy_ref[1] = np.arctan2(  waypoint.eta_1[2] - eta_1[2],
+            math.sqrt((waypoint.eta_1[0] - eta_1[0])**2+(waypoint.eta_1[1] - eta_1[1])**2)))
+		
 		references = References()
 		references.pos.x = pos_ref[0]
 		references.pos.y = pos_ref[1]
 		references.pos.z = pos_ref[2]
-		references.rpy.x = eta_2_init[0]
-		references.rpy.y = eta_2_init[1]
-		references.rpy.z = pitch_ref
-		print("PITCH REFERENCE: %s" % int(round(math.degrees(pitch_ref))))
+		references.rpy.x = rpy_ref[0] #non lo useremo
+		references.rpy.y = rpy_ref[1]
+		references.rpy.z = rpy_ref[2]
+		print("PITCH REFERENCE: %s" % int(round(math.degrees(rpy_ref[1]))))
 		pub.publish(references)
 	elif state.task != 'PITCH':
-		[prev_waypoint, next_waypoint, eta_1_init, eta_2_init, pitch_ref] = clear_vars([prev_waypoint, next_waypoint, eta_1_init, eta_2_init, pitch_ref])
+		[waypoint, eta_1_init, eta_2_init] = clear_vars([waypoint, eta_1_init, eta_2_init])
 
 def pitch_task():
 	rospy.init_node('pitch_task')
@@ -76,5 +69,3 @@ if __name__ == '__main__':
 		pitch_task()
 	except rospy.ROSInterruptException:
 		pass
-
-
