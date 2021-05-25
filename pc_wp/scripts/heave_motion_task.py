@@ -57,7 +57,7 @@ def state_callback(state, pub):
 	elif state.task != 'HEAVE':
 		[waypoint, eta_1_init, eta_2_init] = clear_vars([waypoint, eta_1_init, eta_2_init])
 
-def yaw_task():
+def heave_motion_task():
 	rospy.init_node('heave_motion_task')
 	pub = rospy.Publisher('references', References, queue_size = QUEUE_SIZE)
 	rospy.Subscriber('state', State, state_callback, pub)
