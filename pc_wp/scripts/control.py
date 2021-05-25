@@ -5,18 +5,16 @@ import numpy as np
 import pymap3d as pm
 import time
 from pc_wp.msg import References, State, Odom
+from utils import wrap2pi
 
 strategy = None
 current_task = None
-task_changed = False		
-
-yaw_angular_velocity = rospy.get_param('/yaw_angular_velocity')
-
 wp_index = None
 
-eta_1 = []
-eta_2 = []
-lld_ned = rospy.get_param('ned_origin')
+eta_1 = None
+eta_2 = None
+
+task_changed = False
 
 eta_1_init = None
 eta_2_init = None
@@ -24,7 +22,8 @@ eta_2_init = None
 time_start = None
 
 def odom_callback(odom):
-	global eta_1, eta_2, lld_ned, eta_1_init, eta_2_init
+	global eta_1, eta_2, eta_1_init, eta_2_init
+	lld_ned = rospy.get_param('ned_origin')
 	eta_1 = [	pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[0], 
 			pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[1],
 			pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[2]]
@@ -44,34 +43,30 @@ def state_callback(state):
 	current_task = state.task
 	wp_index = state.wp_index
 	
-def yaw_ref(yaw_ref):
-	global eta_2, time_start, task_changed, current_task, yaw_angular_velocity
+def set_yaw_ref(final_value): #TODO 
+	global eta_2, time_start, task_changed, current_task
+	yaw_angular_velocity = rospy.get_param('/yaw_angular_velocity')
 	if not time_start or task_changed:
-		time_start = time.time()
+		time_start = time.time()					# init time_start
 		task_changed = False
 	dt = time.time() - time_start	
-	ref = eta_2[2] + np.sign(yaw_ref - eta_2[2])*yaw_angular_velocity*dt
-	print("ref_mini: %s, yaw_ref_final: %s" % (str(ref), str(yaw_ref)))
-	#r = 0.6*ref + 0.4*eta_2[2]
-	if abs(yaw_ref) > abs(ref):
-		return yaw_ref
+	ref = eta_2[2] + np.sign(final_value - eta_2[2])*yaw_angular_velocity*dt
+	if abs(final_value) < abs(ref):
+		return final_value
 	else:
 		return ref
-
-def pid():
-	
 
 def ref_callback(ref):
 	global strategy, current_task, eta_1, eta_2
 	if current_task == 'YAW': 
+		while eta_1 is None or eta_2 is None:
+			pass 
 		error_x = ref.pos.x - eta_1[0]
 		error_y = ref.pos.y - eta_1[1]
 		error_z = ref.pos.z - eta_1[2]
 		error_pitch = wrap2pi(ref.rpy.y - eta_2[1])		
-		#error_yaw = yaw_ref(ref.rpy.z) - eta_2[2]
-		#r = 0.9*yaw_ref(ref.rpy.z) + 0.1*eta_2[2]
-		u = yaw_ref(ref.rpy.z)
-		print("riferimento da dare al cazzo di PID: %s" % str(u))
+		error_yaw = wrap2pi(set_yaw_ref(ref.rpy.z) - eta_2[2])
+		print(math.degrees(set_yaw_ref(ref.rpy.z)))
 
 def control():
 	rospy.init_node('control')

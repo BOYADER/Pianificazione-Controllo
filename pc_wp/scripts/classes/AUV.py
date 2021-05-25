@@ -28,9 +28,9 @@ class AUV:
 									self.waypoint.eta_1[1],
 									self.waypoint.eta_1[2]))
 			
-	def pitch_desired(self):			# compute pitch_des in order to decide the strategy: pitch_des = - atan2(wp.z - auv.z, wp.x - auv.x)
+	def pitch_desired(self):			# compute pitch_des in order to decide the strategy
 		pitch_des = -np.arctan2(	self.waypoint.eta_1[2] - self.eta_1[2],
-						self.waypoint.eta_1[0] - self.eta_1[0])
+						math.sqrt((self.waypoint.eta_1[0] - self.eta_1[0])**2 + (self.waypoint.eta_1[1] - self.eta_1[1])**2))
 		print("pitch_des: %s" % math.degrees(pitch_des))
 		return pitch_des
 	
