@@ -12,25 +12,27 @@ def wrap2pi(angle):
 		# else:
 		#	return angle % (-math.pi)
 
+#funzione che imposta tutte le variabili dell'array a None
 def clear_vars(array):
 	ret = []
 	for var in array:
 		ret.append(None)
 	return ret
-	
+
+
 def get_waypoint(index):
-	if index < len(rospy.get_param('/waypoint_list')):
+	if index < len(rospy.get_param('/waypoint_list')):   #se indice corrisponde a un wp esistente
 		lld_ned = rospy.get_param('ned_origin')
 		string_param = '/waypoint_list/wp' + str(index + 1)			
 		latitude = rospy.get_param(string_param)['latitude']
 		longitude = rospy.get_param(string_param)['longitude']
 		depth = rospy.get_param(string_param)['depth']
-		waypoint = Waypoint(latitude, longitude, depth, lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'])
+		waypoint = Waypoint(latitude, longitude, depth, lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'])  #restituisce le coordinate in ned del wp
 		return waypoint
-	elif index == len(rospy.get_param('/waypoint_list')):
+	elif index == len(rospy.get_param('/waypoint_list')):  #se sono finiti i wp
 		waypoint = Waypoint(lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'], lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'])
-		return waypoint
-	else:
+		return waypoint #restituisce le coordinate dell'origine della ned in ned, quindi [0 0 0]
+	else: #altrimenti nessun wp
 		return None
 	
 
