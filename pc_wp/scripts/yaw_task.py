@@ -7,15 +7,10 @@ from classes.Waypoint import Waypoint
 from pc_wp.msg import References, State, Odom
 from utils import get_waypoint, clear_vars
 
+waypoint = None
 
-yaw_ref = None
-yaw_angular_velocity = rospy.get_param('/yaw_angular_velocity')
-
-prev_waypoint = None
-next_waypoint = None
 eta_1 = []
 eta_2 = []
-
 eta_1_init = None
 eta_2_init = None
 
@@ -38,31 +33,27 @@ def odom_callback(odom):
 	print("YAW: %s" % math.degrees(eta_2[2]))
 
 def state_callback(state, pub):
-	global prev_waypoint, next_waypoint, eta_1_init, eta_2_init, yaw_ref
+	global waypoint, eta_1_init, eta_2_init
 	if state.task == 'YAW':
-		if not prev_waypoint and state.wp_index > 0:
-			prev_waypoint = get_waypoint(state.wp_index)
-			pos_ref = prev_waypoint
-		else:
-			while eta_1_init is None:
+		while eta_1_init is None or eta_2_init is None:
 				pass
-			pos_ref = eta_1_init		
-		if not next_waypoint:
-			next_waypoint = get_waypoint(state.wp_index+1)
-		if not yaw_ref:
-			yaw_ref = np.arctan2(	next_waypoint.eta_1[1] - eta_1[1],
-						next_waypoint.eta_1[0] - eta_1[0])
+		pos_ref = eta_1_init
+		rpy_ref = eta_2_init	
+		if not waypoint:
+			waypoint = get_waypoint(state.wp_index+1)
+		rpy_ref[2] = np.arctan2(	waypoint.eta_1[1] - eta_1[1],
+						waypoint.eta_1[0] - eta_1[0])
 		references = References()
 		references.pos.x = pos_ref[0]
 		references.pos.y = pos_ref[1]
 		references.pos.z = pos_ref[2]
-		references.rpy.x = eta_2_init[0]
-		references.rpy.y = eta_2_init[1]
-		references.rpy.z = yaw_ref
-		print("YAW REFERENCE: %s" % int(round(math.degrees(yaw_ref))))
+		references.rpy.x = rpy_ref[0]
+		references.rpy.y = rpy_ref[1]
+		references.rpy.z = rpy_ref[2]
+		print("YAW REFERENCE: %s" % int(round(math.degrees(rpy_ref[2]))))
 		pub.publish(references)
 	elif state.task != 'YAW':
-		[prev_waypoint, next_waypoint, eta_1_init, eta_2_init, yaw_ref] = clear_vars([prev_waypoint, next_waypoint, eta_1_init, eta_2_init, yaw_ref])
+		[waypoint, eta_1_init, eta_2_init] = clear_vars([waypoint, eta_1_init, eta_2_init])
 
 def yaw_task():
 	rospy.init_node('yaw_task')
