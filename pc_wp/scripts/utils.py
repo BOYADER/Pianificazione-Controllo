@@ -19,10 +19,20 @@ def clear_vars(array):
 	return ret
 	
 def get_waypoint(index):
-	lld_ned = rospy.get_param('ned_origin')
-	string_param = '/waypoint_list/wp' + str(index)			
-	latitude = rospy.get_param(string_param)['latitude']
-	longitude = rospy.get_param(string_param)['longitude']
-	depth = rospy.get_param(string_param)['depth']
-	waypoint = Waypoint(latitude, longitude, depth, lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'])
-	return waypoint
+	if index < len(rospy.get_param('/waypoint_list')):
+		lld_ned = rospy.get_param('ned_origin')
+		string_param = '/waypoint_list/wp' + str(index + 1)			
+		latitude = rospy.get_param(string_param)['latitude']
+		longitude = rospy.get_param(string_param)['longitude']
+		depth = rospy.get_param(string_param)['depth']
+		waypoint = Waypoint(latitude, longitude, depth, lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'])
+		return waypoint
+	elif index == len(rospy.get_param('/waypoint_list')):
+		waypoint = Waypoint(lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'], lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'])
+		return waypoint
+	else:
+		return None
+	
+
+
+

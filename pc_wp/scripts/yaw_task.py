@@ -40,7 +40,7 @@ def state_callback(state, pub):
 		pos_ref = eta_1_init
 		rpy_ref = eta_2_init	
 		if not waypoint:
-			waypoint = get_waypoint(state.wp_index+1)
+			waypoint = get_waypoint(state.wp_index)
 		rpy_ref[2] = np.arctan2(	waypoint.eta_1[1] - eta_1[1],
 						waypoint.eta_1[0] - eta_1[0])
 		references = References()

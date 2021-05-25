@@ -22,18 +22,12 @@ class AUV:
 		self.wp_index = 0
 		self.tolerance = None
 				
-	def set_waypoint(self):				# set next waypoint, params from mission.yaml file
-		if self.wp_index < len(rospy.get_param('/waypoint_list')):
-			string_param = '/waypoint_list/wp' + str(self.wp_index+1)			
-			latitude = rospy.get_param(string_param)['latitude']
-			longitude = rospy.get_param(string_param)['longitude']
-			depth = rospy.get_param(string_param)['depth']
-			self.waypoint = Waypoint(latitude, longitude, depth, self.lld_ned[0], self.lld_ned[1], self.lld_ned[2])
-			print("Waypoint n. %d, coords [NED]: [%s, %s, %s]" % (	self.wp_index+1,
-										self.waypoint.eta_1[0],
-										self.waypoint.eta_1[1],
-										self.waypoint.eta_1[2]))	
-	
+	def print_waypoint(self):
+		print("Waypoint n. %d, coords [NED]: [%s, %s, %s]" % (	self.wp_index + 1,
+									self.waypoint.eta_1[0],
+									self.waypoint.eta_1[1],
+									self.waypoint.eta_1[2]))
+			
 	def pitch_desired(self):			# compute pitch_des in order to decide the strategy: pitch_des = - atan2(wp.z - auv.z, wp.x - auv.x)
 		pitch_des = -np.arctan2(	self.waypoint.eta_1[2] - self.eta_1[2],
 						self.waypoint.eta_1[0] - self.eta_1[0])
