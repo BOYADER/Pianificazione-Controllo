@@ -15,6 +15,7 @@ eta_1_init = None
 eta_2_init = None
 
 QUEUE_SIZE = rospy.get_param('/QUEUE_SIZE')
+x_linear_velocity = rospy.get_param('/x_linear_velocity')
 
 def odom_callback(odom):
 	global eta_1, eta_2, eta_1_init, eta_2_init
@@ -60,7 +61,7 @@ def state_callback(state, pub):
 		references.rpy.x = rpy_ref[0] #non lo useremo
 		references.rpy.y = rpy_ref[1]
 		references.rpy.z = rpy_ref[2]
-		references.lin_vel.x = 
+		references.lin_vel.x = x_linear_velocity  #controlliamo la velocità lungo x
 		pub.publish(references)
 	elif state.task != 'SURGE':
 		[waypoint, eta_1_init, eta_2_init] = clear_vars([waypoint, eta_1_init, eta_2_init])
