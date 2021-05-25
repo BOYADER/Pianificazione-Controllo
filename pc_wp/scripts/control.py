@@ -37,11 +37,11 @@ def odom_callback(odom):
 
 def state_callback(state):
 	global strategy, current_task, task_changed, wp_index
-	strategy = state.strategy
+	strategy = state.strategy  #setta strategia
 	if not current_task or current_task != state.task:
-		task_changed = True
-	current_task = state.task
-	wp_index = state.wp_index
+		task_changed = True  #flag per il timer
+	current_task = state.task  #setta il task corrente
+	wp_index = state.wp_index  #setta indice del wp
 	
 def set_yaw_ref(final_value): #TODO 
 	global eta_2, time_start, task_changed, current_task
@@ -56,6 +56,7 @@ def set_yaw_ref(final_value): #TODO
 	else:
 		return ref
 
+#funzione che prende i riferimenti e calcola gli errori
 def ref_callback(ref):
 	global strategy, current_task, eta_1, eta_2
 	if current_task == 'YAW': 
