@@ -35,7 +35,7 @@ def odom_callback(odom):
 
 def state_callback(state, pub):
 	global waypoint, eta_1_init, eta_2_init
-	if state.task == 'YAW':  #se nel messaggio state il campo task è YAW
+	if state.task == 'YAW':  #se nel messaggio state il campo task e' YAW
 		while eta_1_init is None or eta_2_init is None:  #attendo che vengano inizializzate
 				pass
 		pos_ref = eta_1_init
@@ -51,7 +51,7 @@ def state_callback(state, pub):
 		references.pos.x = pos_ref[0]
 		references.pos.y = pos_ref[1]
 		references.pos.z = pos_ref[2]
-		references.rpy.x = rpy_ref[0]  #roll non verrà usato 
+		references.rpy.x = rpy_ref[0]  #roll non verra' usato 
 		references.rpy.y = rpy_ref[1]
 		references.rpy.z = rpy_ref[2]
 		print("YAW REFERENCE: %s" % int(round(math.degrees(rpy_ref[2]))))
