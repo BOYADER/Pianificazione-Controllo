@@ -1,4 +1,5 @@
 yaw_angular_velocity:  0.3 #[rad/s]
+x_linear_velocity:  3 #[m/s]
 
 ned_origin:
   latitude: 0              #[°]
