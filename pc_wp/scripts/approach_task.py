@@ -65,8 +65,8 @@ def state_callback(state, pub):
 	elif state.task != 'APPROACH':
 		[waypoint, eta_1_init, eta_2_init] = clear_vars([waypoint, eta_1_init, eta_2_init])
 
-def waypoint_approach_task():
-	rospy.init_node('waypoint_approach_task')
+def approach_task():
+	rospy.init_node('approach_task')
 	pub = rospy.Publisher('references', References, queue_size = QUEUE_SIZE)
 	rospy.Subscriber('state', State, state_callback, pub)
 	rospy.Subscriber('odom', Odom, odom_callback)
@@ -74,6 +74,6 @@ def waypoint_approach_task():
 
 if __name__ == '__main__':
 	try:
-		waypoint_approach_task()
+		approach_task()
 	except rospy.ROSInterruptException:
 		pass

@@ -15,7 +15,6 @@ eta_1_init = None
 eta_2_init = None
 
 QUEUE_SIZE = rospy.get_param('/QUEUE_SIZE')
-x_linear_velocity = rospy.get_param('/x_linear_velocity')
 
 def odom_callback(odom):
 	global eta_1, eta_2, eta_1_init, eta_2_init
@@ -33,41 +32,33 @@ def odom_callback(odom):
 	
 def state_callback(state, pub):
 	global waypoint, eta_1_init, eta_2_init
-	if state.task == 'SURGE':
+	if state.task == 'HEAVE':
 		while eta_1_init is None or eta_2_init is None:
 				pass	
 		if not waypoint:
 			waypoint = get_waypoint(state.wp_index)
-	
-		#riferimento yaw
-		rpy_ref[2] = np.arctan2(	waypoint.eta_1[1] - eta_1[1],  
-						waypoint.eta_1[0] - eta_1[0])
-		#riferimento pitch
-		rpy_ref[1] = np.arctan2(	waypoint.eta_1[2] - eta_1[2],
-						math.sqrt((waypoint.eta_1[0] - eta_1[0])**2+(waypoint.eta_1[1] - eta_1[1])**2)))
-		#riferimento roll
-		rpy_ref[0] = eta_2_init[0]
 
-		#riferimento posizione x y z
-		pos_ref[0] = waypoint.eta_1[0]  #posizione del prossimo waypoint
-		pos_ref[1] = waypoint.eta_1[1]
+		#riferimenti roll pitch yaw sono quelli che si hanno a inizio task
+		rpy_ref = eta_2_init
+		#riferimento z
 		pos_ref[2] = waypoint.eta_1[2]
-		
-		#scrivo i riferimenti
+		#riferimento x y sono quelli che si hanno a inizio task
+		pos_ref[0] = eta_1_init[0]  #riferimento x
+		pos_ref[1] = eta_1_init[0]  #riferimento y
+
 		references = References()
-		references.pos.x = pos_ref[0]  #non lo useremo, lungo x avremo controllo di velocità
+		references.pos.x = pos_ref[0]
 		references.pos.y = pos_ref[1]
 		references.pos.z = pos_ref[2]
-		references.rpy.x = rpy_ref[0] #non lo useremo
+		references.rpy.x = rpy_ref[0]
 		references.rpy.y = rpy_ref[1]
 		references.rpy.z = rpy_ref[2]
-		references.lin_vel.x = x_linear_velocity  #controlliamo la velocità lungo x
 		pub.publish(references)
-	elif state.task != 'SURGE':
+	elif state.task != 'HEAVE':
 		[waypoint, eta_1_init, eta_2_init] = clear_vars([waypoint, eta_1_init, eta_2_init])
 
-def surge_motion_task():
-	rospy.init_node('surge_motion_task')
+def heave_task():
+	rospy.init_node('heave_task')
 	pub = rospy.Publisher('references', References, queue_size = QUEUE_SIZE)
 	rospy.Subscriber('state', State, state_callback, pub)
 	rospy.Subscriber('odom', Odom, odom_callback)
@@ -75,6 +66,6 @@ def surge_motion_task():
 
 if __name__ == '__main__':
 	try:
-		surge_motion_task()
+		heave_task()
 	except rospy.ROSInterruptException:
 		pass
