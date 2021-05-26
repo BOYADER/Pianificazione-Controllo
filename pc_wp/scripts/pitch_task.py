@@ -30,7 +30,7 @@ def odom_callback(odom):
 	if not eta_2_init:
 		eta_2_init = eta_2
 	#print("eta_1: %s; eta_2: %s; eta_1_init: %s; eta_2_init: %s" % (eta_1, eta_2, eta_1_init, eta_2_init))
-	print("YAW: %s" % math.degrees(eta_2[2]))
+	#print("YAW: %s" % math.degrees(eta_2[2]))
 
 def state_callback(state, pub):
 	global waypoint, eta_1_init, eta_2_init
