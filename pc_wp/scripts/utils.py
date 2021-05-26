@@ -36,5 +36,11 @@ def get_waypoint(index):
 		return None
 	
 
+def min_distance_angle	(final_angle, current_angle):
+	if (final_angle - current_angle)%(2*np.pi) < np.pi:
+		return (final_angle - current_angle)%np.pi
+	else:
+		return (final_angle - current_angle)%(-np.pi) 
+
 
 
