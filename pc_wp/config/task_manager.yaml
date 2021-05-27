@@ -1,4 +1,4 @@
-critical_pitch: 20                  #[°]
+critical_pitch: 20                  # [°]
 
 task_seq_list:                      # strategy 0: not set - init
   ts1:                              # strategy 1: pitch_des < critical_pitch
@@ -14,8 +14,10 @@ task_seq_list:                      # strategy 0: not set - init
     - APPROACH
 
 task_tolerance_list:
-  YAW:       3                      #[°]
-  PITCH:     3                      #[°]
-  HEAVE:     3                      #[m]
-  SURGE:    20                      #[m]
-  APPROACH: 10                      #[m]    same as tolerance_on_waypoint in mission.yaml
+  YAW:       3                      # [°]
+  PITCH:     3                      # [°]
+  HEAVE:     3                      # [m]
+  SURGE:    20                      # [m]
+  APPROACH: 10                      # [m]    same as tolerance_on_waypoint in mission.yaml
+
+

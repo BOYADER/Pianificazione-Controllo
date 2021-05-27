@@ -9,15 +9,15 @@ from pc_wp.msg import Odom, References, State
 auv = None
 references = References()
 
-QUEUE_SIZE = rospy.get_param('/QUEUE_SIZE')
+QUEUE_SIZE = rospy.get_param('QUEUE_SIZE')
 
 def odom_callback(odom, pub):
 	global auv, references
 	end_mission = False
 	if not auv:
-		rospy.set_param('ned_origin', {	'latitude': odom.lld.x, 	# set ned_origin on the utils.yaml file
-						'longitude': odom.lld.y,
-						'depth': odom.lld.z})
+		rospy.set_param('ned_frame_origin', {	'latitude': odom.lld.x, 	# set ned_origin on the utils.yaml file
+							'longitude': odom.lld.y,
+							'depth': odom.lld.z})
 		auv = AUV(	odom.lld.x, odom.lld.y, odom.lld.z,		# create AUV object
 				odom.rpy.x, odom.rpy.y, odom.rpy.z,
 				odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)

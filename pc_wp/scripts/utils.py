@@ -7,27 +7,33 @@ from classes.Waypoint import Waypoint
 def wrap2pi(angle):
 		return np.arctan2(np.sin(angle), np.cos(angle))
 
-#funzione che imposta tutte le variabili dell'array a None
-def clear_vars(array):
-	ret = []
-	for var in array:
-		ret.append(None)
-	return ret
+def isNone(vars_array):
+	ans = False
+	for var in vars_array:
+		if var is None:
+			ans = True
+	return ans
+
+def clear(vars_array):
+	None_array = []
+	for var in vars_array:
+		None_array.append(None)
+	return None_array
 
 
 def get_waypoint(index):
-	if index < len(rospy.get_param('/waypoint_list')):   #se indice corrisponde a un wp esistente
-		lld_ned = rospy.get_param('ned_origin')
-		string_param = '/waypoint_list/wp' + str(index + 1)			
+	if index < len(rospy.get_param('waypoint_list')):
+		lld_ned = rospy.get_param('ned_frame_origin')
+		string_param = 'waypoint_list/wp' + str(index + 1)			
 		latitude = rospy.get_param(string_param)['latitude']
 		longitude = rospy.get_param(string_param)['longitude']
 		depth = rospy.get_param(string_param)['depth']
-		waypoint = Waypoint(latitude, longitude, depth, lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'])  #restituisce le coordinate in ned del wp
+		waypoint = Waypoint(latitude, longitude, depth, lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'])
 		return waypoint
-	elif index == len(rospy.get_param('/waypoint_list')):  #se sono finiti i wp
+	elif index == len(rospy.get_param('waypoint_list')):
 		waypoint = Waypoint(lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'], lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'])
-		return waypoint #restituisce le coordinate dell'origine della ned in ned, quindi [0 0 0]
-	else: #altrimenti nessun wp
+		return waypoint
+	else:
 		return None
 
 

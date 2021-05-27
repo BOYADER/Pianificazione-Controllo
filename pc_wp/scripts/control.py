@@ -25,11 +25,11 @@ time_start = None
 global position_error_ned, pose_error, velocity_error
 position_error_ned = np.array([references.pose.x - odom.lld.x, references.pose.y - odom.pose.y, references.pose.z - odom.pose.z])
 pose_error = np.array([references.rpy.x - odom.rpy.x, references.rpy.y - odom.rpy.y, references.rpy.z - odom.rpy.z])
-velocity_error = np.array([rospy.get_param('/surge_velocity') - odom.lin_vel.x, 0, 0]) 
+velocity_error = np.array([rospy.get_param('surge_velocity') - odom.lin_vel.x, 0, 0]) 
 
 def odom_callback(odom):
 	global eta_1, eta_2, eta_1_init, eta_2_init
-	lld_ned = rospy.get_param('ned_origin')
+	lld_ned = rospy.get_param('ned_frame_origin')
 	eta_1 = [	pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[0], 
 			pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[1],
 			pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[2]]
@@ -51,7 +51,7 @@ def state_callback(state):
 	
 def set_yaw_ref(final_value): #TODO 
 	global eta_2, time_start, task_changed, current_task
-	yaw_angular_velocity = rospy.get_param('/yaw_angular_velocity')
+	yaw_angular_velocity = rospy.get_param('yaw_angular_velocity')
 	if not time_start or task_changed:
 		time_start = time.time()					# init time_start
 		task_changed = False

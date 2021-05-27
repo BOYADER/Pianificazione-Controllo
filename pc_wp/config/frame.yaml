@@ -1,0 +1,4 @@
+ned_frame_origin:
+  latitude: 0                       # [°]
+  longitude: 0                      # [°]
+  depth: 0                          # [m]

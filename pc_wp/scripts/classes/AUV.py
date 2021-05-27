@@ -35,17 +35,17 @@ class AUV:
 		return pitch_des
 	
 	def set_strategy(self, pitch_des):		# strategy and task_seq setting 
-		critical_pitch = math.radians(rospy.get_param('/critical_pitch'))		
+		critical_pitch = math.radians(rospy.get_param('critical_pitch'))		
 		if abs(pitch_des) < critical_pitch or abs(pitch_des) > (math.pi - critical_pitch):
 			self.strategy = 1
 		else:
 			self.strategy = 2
-		string_param = '/task_seq_list/ts' + str(self.strategy)
+		string_param = 'task_seq_list/ts' + str(self.strategy)
 		self.task_seq = rospy.get_param(string_param)
 		print("strategy: %d, task_seq: %s" % (self.strategy, self.task_seq))
 	
 	def set_tolerance(self):			# set task tolerance error
-		string_param = '/task_tolerance_list/' + self.task_seq[self.task_index]
+		string_param = 'task_tolerance_list/' + self.task_seq[self.task_index]
 		if self.task_seq[self.task_index] == 'YAW' or self.task_seq[self.task_index] == 'PITCH':
 			self.tolerance = math.radians(rospy.get_param(string_param))
 		else:
@@ -60,19 +60,18 @@ class AUV:
 		self.ni_1 = [vx, vy, vz]
 		
 	def task_error(self, references):
-		error_degrees = None
 		if self.task_seq[self.task_index] == 'YAW':
-			[error, error_degrees] = wrap2pi(references.rpy.z - self.eta_2[2])
+			error = wrap2pi(references.rpy.z - self.eta_2[2])
 		elif self.task_seq[self.task_index] == 'PITCH':
-			[error, error_degrees] = wrap2pi(references.rpy.y - self.eta_2[1])
+			error = wrap2pi(references.rpy.y - self.eta_2[1])
 		elif self.task_seq[self.task_index] == 'HEAVE':
 			error = references.pos.z - self.eta_1[2]
 		elif self.task_seq[self.task_index] == 'SURGE' or self.task_seq[self.task_index] == 'APPROACH':
 			error = math.sqrt(	(references.pos.x - self.eta_1[0])**2 + 	
 						(references.pos.y - self.eta_1[1])**2 + 
 						(references.pos.z - self.eta_1[2])**2)
-		if error_degrees is not None:
-			print("%s error: %s degrees" % (self.task_seq[self.task_index], error_degrees))
+		if self.task_seq[self.task_index] == 'YAW' or self.task_seq[self.task_index] == 'PITCH' :
+			print("%s error: %s degrees" % (self.task_seq[self.task_index], int(round(math.degrees(error)))))
 		else:
 			print("%s error: %s meters" % (self.task_seq[self.task_index], error))
 		return error							

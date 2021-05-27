@@ -3,7 +3,7 @@ import rospy
 import math
 from pc_wp.msg import Odom
 
-QUEUE_SIZE = rospy.get_param('/QUEUE_SIZE')
+QUEUE_SIZE = rospy.get_param('QUEUE_SIZE')
 
 def navigation():
 	pub = rospy.Publisher('odom', Odom, queue_size = QUEUE_SIZE)
