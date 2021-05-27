@@ -5,12 +5,7 @@ import rospy
 from classes.Waypoint import Waypoint
 
 def wrap2pi(angle):
-		res = np.arctan2(np.sin(angle), np.cos(angle))
-		return [res, int(round(math.degrees(res)))]
-		# if angle % (2*math.pi) < math.pi:
-		#	return angle % math.pi
-		# else:
-		#	return angle % (-math.pi)
+		return np.arctan2(np.sin(angle), np.cos(angle))
 
 #funzione che imposta tutte le variabili dell'array a None
 def clear_vars(array):
@@ -34,13 +29,5 @@ def get_waypoint(index):
 		return waypoint #restituisce le coordinate dell'origine della ned in ned, quindi [0 0 0]
 	else: #altrimenti nessun wp
 		return None
-	
-
-def min_distance_angle	(final_angle, current_angle):
-	if (final_angle - current_angle)%(2*np.pi) < np.pi:
-		return (final_angle - current_angle)%np.pi
-	else:
-		return (final_angle - current_angle)%(-np.pi) 
-
 
 

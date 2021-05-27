@@ -5,7 +5,7 @@ import numpy as np
 import pymap3d as pm
 import time
 from pc_wp.msg import References, State, Odom
-import scripts/utils
+from utils import wrap2pi
 
 strategy = None
 current_task = None
@@ -56,7 +56,7 @@ def set_yaw_ref(final_value): #TODO
 		time_start = time.time()					# init time_start
 		task_changed = False
 	dt = time.time() - time_start	
-	ref = eta_2[2] + np.sign(final_value - eta_2[2])*yaw_angular_velocity*dt
+	ref = eta_2_init[2] + np.sign(final_value - eta_2[2])*yaw_angular_velocity*dt
 	if abs(final_value) < abs(ref):
 		return final_value
 	else:
@@ -71,9 +71,8 @@ def ref_callback(ref):
 		error_x = ref.pos.x - eta_1[0]
 		error_y = ref.pos.y - eta_1[1]
 		error_z = ref.pos.z - eta_1[2]
-		error_pitch = utils.min_distance_angle(ref.rpy.y, eta_2[1])		
-		error_yaw = utils.min_distance_angle(set_yaw_ref(ref.rpy.z), eta_2[2])
-		print(math.degrees(set_yaw_ref(ref.rpy.z)))
+		error_pitch = wrap2pi(ref.rpy.y - eta_2[1])		
+		error_yaw = wrap2pi(set_yaw_ref(ref.rpy.z) - eta_2[2])
 		
 #funzione che porta l'errore di posizione in terna body
 def error_body (position_error):
