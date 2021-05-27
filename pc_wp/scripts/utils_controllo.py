@@ -126,7 +126,7 @@ def error_ned2body(error, eta_2):  #error ed eta_2 sono due vettori colonna erro
     return error_body
   
 #funzione che prende in ingresso l'errore in body e sputa fuori le tau da pubblicare sul topic wrench
-def controllo(error_body):                             #tutte cose da definire come 
+def controllo(error_body):                             #tutte cose da definire come parametri in un file yaml
     global int_error, dt, UP_SAT, DOWN_SAT, K_P, K_I  #integrale dell'errore, intervallo di tempo, saturazione superiore, saturazione inferiore, matrice dei guadagni P, matrice dei guadagni I 
     int_error = int_error + (error_body * dt)     #calcolo integrale dell'errore
     u = np.dot(K_P, error_body) + np.dot(K_I, int_error) #controllore
