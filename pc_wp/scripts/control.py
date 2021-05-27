@@ -5,19 +5,18 @@ import numpy as np
 import pymap3d as pm
 import time
 from pc_wp.msg import References, State, Odom
-from utils import wrap2pi
+from utils import wrap2pi, isNone
 
 strategy = None
-current_task = None
+task = None
 wp_index = None
 
 eta_1 = None
 eta_2 = None
-
-task_changed = False
-
 eta_1_init = None
 eta_2_init = None
+
+task_changed = False
 
 time_start = None
 
@@ -28,7 +27,7 @@ pose_error = np.array([references.rpy.x - odom.rpy.x, references.rpy.y - odom.rp
 velocity_error = np.array([rospy.get_param('surge_velocity') - odom.lin_vel.x, 0, 0]) 
 
 def odom_callback(odom):
-	global eta_1, eta_2, eta_1_init, eta_2_init
+	global eta_1, eta_2
 	lld_ned = rospy.get_param('ned_frame_origin')
 	eta_1 = [	pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[0], 
 			pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[1],
@@ -36,68 +35,81 @@ def odom_callback(odom):
 	eta_2 = [	odom.rpy.x,
 			odom.rpy.y,
 			odom.rpy.z]
-	if not eta_1_init:
-		eta_1_init = eta_1
-	if not eta_2_init:
-		eta_2_init = eta_2
 
 def state_callback(state):
-	global strategy, current_task, task_changed, wp_index
-	strategy = state.strategy  			#setta strategia
-	if not current_task or current_task != state.task:
-		task_changed = True 			 #flag per il timer
-	current_task = state.task 			 #setta il task corrente
-	wp_index = state.wp_index 			 #setta indice del wp
-	
-def set_yaw_ref(final_value): #TODO 
-	global eta_2, time_start, task_changed, current_task
-	yaw_angular_velocity = rospy.get_param('yaw_angular_velocity')
+	global strategy, task, wp_index, task_changed, eta_1_init, eta_2_init		
+	if not task or task != state.task:
+		task_changed = True 	
+		while isNone([eta_1, eta_2]):
+			pass
+		eta_1_init = eta_1
+		eta_2_init = eta_2	
+	strategy = state.strategy
+	task = state.task
+	wp_index = state.wp_index
+
+def set_tv_reference(init_value, actual_value, final_value, task):				# set time varying reference signal
+	global time_start, task_changed
+	string_param = 'task_velocity_reference_list/' + task
+	velocity_reference = rospy.get_param(string_param)
 	if not time_start or task_changed:
-		time_start = time.time()					# init time_start
+        	time_start = time.time()  # init time_start
 		task_changed = False
-	dt = time.time() - time_start	
-	ref = eta_2_init[2] + np.sign(final_value - eta_2[2])*yaw_angular_velocity*dt
-	if abs(final_value) < abs(ref):
+	dt = time.time() - time_start
+	tv_reference = init_value + np.sign(final_value - actual_value) * velocity_reference * dt
+	if abs(final_value) < abs(tv_reference):
 		return final_value
 	else:
-		return ref
+		return tv_reference
 
-#funzione che prende in ingresso i riferimenti e calcola gli errori
 def ref_callback(ref):
-	global strategy, current_task, eta_1, eta_2
-	if current_task == 'YAW': 
-		while eta_1 is None or eta_2 is None:
-			pass 
+	global strategy, task, eta_1, eta_2, eta_1_init, eta_2_init
+	while isNone([eta_1, eta_2, eta_1_init, eta_2_init]):
+		pass
+	if task == 'YAW':
 		error_x = ref.pos.x - eta_1[0]
 		error_y = ref.pos.y - eta_1[1]
 		error_z = ref.pos.z - eta_1[2]
-		error_pitch = wrap2pi(ref.rpy.y - eta_2[1])		
-		error_yaw = wrap2pi(set_yaw_ref(ref.rpy.z) - eta_2[2])
-		
-#funzione che porta l'errore di posizione in terna body
-def error_body (position_error):
-#definisco J1(eta2)
-	roll = eta2[0]
-	pitch = eta2[1]
-	yaw = eta2 [2]
-	R_x_roll = np.array([1,0,0]
-			    [0,math.cos(roll), -math.sin(roll)]
-			    [0,math.sin(roll), math.cos(roll)])
-	R_y_pitch = np.array([mah.cos(pitch),0, math.sin(pitch)]
-			     [0,1,0]
-			     [-math.sin(pitch), 0, math.cos(pitch)])
-	R_z_yaw = np.array([[math.cos(yaw), 0, math.sin(yaw)]
-			    [0, 1, 0]
-			    [-math.sin(yaw), 0, math.cos(yaw)])
-	R_z_t = np.transpose(R_z_yaw)
-   	R_y_t = np.transpose(R_y_pitch)
-   	R_x_t = np.transpose(R_x_roll)
-	J1 = np.dot(np.dot(R_z_t, R_y_t), R_x_t)
-	
-	global position_error_body
-	postion_error_body = np.dot (np.transpose(J1), position_error)
-	
-	return(position_error_body)
+		error_pitch = wrap2pi(ref.rpy.y - eta_2[1])
+		error_yaw = wrap2pi(set_tv_reference(eta_init_2[2], eta_2[2], ref.rpy.z, task) - eta_2[2])
+	if task == 'PITCH':
+        while eta_1 is None or eta_2 is None:
+            pass
+        error_x = ref.pos.x - eta_1[0]
+        error_y = ref.pos.y - eta_1[1]
+        error_z = ref.pos.z - eta_1[2]
+        error_pitch = wrap2pi(set_mini_ref(ref.rpy.y) - eta_2[1])
+        error_yaw = wrap2pi(ref.rpy.z - eta_2[2])
+
+    if task == 'SURGE': #TODO
+        while eta_1 is None or eta_2 is None:
+            pass
+        error_x = ref.pos.x - eta_1[0]
+        error_y = ref.pos.y - eta_1[1]
+        error_z = ref.pos.z - eta_1[2]
+        error_pitch = wrap2pi(ref.rpy.y - eta_2[1])
+        error_yaw = wrap2pi(set_yaw_ref(ref.rpy.z) - eta_2[2])
+        
+    if task == 'HEAVE':
+        while eta_1 is None or eta_2 is None:
+            pass
+        error_x = ref.pos.x - eta_1[0]
+        error_y = ref.pos.y - eta_1[1]
+        error_z = set_mini_ref(ref.pos.z) - eta_1[2]
+        error_pitch = wrap2pi(ref.rpy.y - eta_2[1])
+        error_yaw = wrap2pi(ref.rpy.z - eta_2[2])
+    if task == 'APPROACH': #TODO
+        while eta_1 is None or eta_2 is None:
+            pass
+        error_x = ref.pos.x - eta_1[0]
+        error_y = ref.pos.y - eta_1[1]
+        error_z = set_mini_ref(ref.pos.z) - eta_1[2]
+        error_pitch = wrap2pi(ref.rpy.y - eta_2[1])
+        error_yaw = wrap2pi(ref.rpy.z - eta_2[2])
+        
+    #alla fine metto tutto in un vettore colonna
+    error = np.array([[error_x, error_y, error_z, error_yaw, error_pitch, error_roll]]).T
+    return error
 
 def control():
 	rospy.init_node('control')
