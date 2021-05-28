@@ -4,4 +4,5 @@
 	<rosparam file="$(find pc_wp)/config/references.yaml"/>
 	<rosparam file="$(find pc_wp)/config/rospy.yaml"/>
 	<rosparam file="$(find pc_wp)/config/frame.yaml"/>
+	<rosparam file="$(find pc_wp)/config/pid.yaml"/>
 </launch>
