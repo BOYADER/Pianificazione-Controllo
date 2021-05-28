@@ -20,7 +20,6 @@ def clear(vars_array):
 		None_array.append(None)
 	return None_array
 
-
 def get_waypoint(index):
 	if index < len(rospy.get_param('waypoint_list')):
 		lld_ned = rospy.get_param('ned_frame_origin')
@@ -35,7 +34,6 @@ def get_waypoint(index):
 		return waypoint
 	else:
 		return None
-
 
 def ned2body(vector_ned, eta_2):
 	roll = eta_2[0]
@@ -54,7 +52,6 @@ def ned2body(vector_ned, eta_2):
 	R_y_t = np.transpose(R_y)
 	R_x_t = np.transpose(R_x)
 	J1 = np.dot(np.dot(R_z_t, R_y_t), R_x_t)
-
    	vector_pos_ned = [	vector_ned[0],
 				vector_ned[1],
 				vector_ned[2]]
@@ -62,5 +59,5 @@ def ned2body(vector_ned, eta_2):
 				vector_ned[4],
 				vector_ned[5]]
 	vector_pos_body = np.dot(np.transpose(J1), vector_pos_ned)
-    return np.array([vector_pos_body, vector_rpy])
+	return np.array([vector_pos_body, vector_rpy])
 
