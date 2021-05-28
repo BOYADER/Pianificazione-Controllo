@@ -15,13 +15,14 @@ eta_1 = None
 eta_2 = None
 eta_1_init = None
 eta_2_init = None
+ni_1 = None
 
 task_changed = False
 
 time_start = None
 
 def odom_callback(odom):
-	global eta_1, eta_2
+	global eta_1, eta_2, ni_1
 	lld_ned = rospy.get_param('ned_frame_origin')
 	eta_1 = [	pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[0], 
 			pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[1],
@@ -29,6 +30,9 @@ def odom_callback(odom):
 	eta_2 = [	odom.rpy.x,
 			odom.rpy.y,
 			odom.rpy.z]
+	ni_1 = [	odom.lin_vel.x,
+			odom.lin_vel.y,
+			odom.lin_vel.z]
 
 def state_callback(state):
 	global strategy, task, wp_index, task_changed, eta_1_init, eta_2_init		
@@ -74,21 +78,29 @@ def pid(error_body):                             #tutte cose da definire come pa
     return u
 
 def ref_callback(ref, pub):
-	global strategy, task, eta_1, eta_2, eta_1_init, eta_2_init
-	while isNone([eta_1, eta_2, eta_1_init, eta_2_init]):
+	global strategy, task, eta_1, eta_2, eta_1_init, eta_2_init, ni_1
+	while isNone([eta_1, eta_2, eta_1_init, eta_2_init, ni_1]):
 		pass
+	error_x = ref.pos.x - eta_1[0]
+	error_y = ref.pos.y - eta_1[1]
+	error_z = ref.pos.z - eta_1[2]
+	error_roll = wrap2pi(ref.rpy.x - eta_2[0])		
+	error_pitch = wrap2pi(ref.rpy.y - eta_2[1])
+	error_yaw = wrap2pi(ref.rpy.z - eta_2[2])
 	if task == 'YAW':
-		error_x = ref.pos.x - eta_1[0]
-		error_y = ref.pos.y - eta_1[1]
-		error_z = ref.pos.z - eta_1[2]
-		error_roll = 0
-		error_pitch = wrap2pi(ref.rpy.y - eta_2[1])
 		error_yaw = wrap2pi(set_tv_reference(eta_2_init[2], eta_2[2], ref.rpy.z) - eta_2[2])
-		error_ned = np.array([error_x, error_y, erro_z, error_roll, error_pitch, error_yaw])
-		error_body = ned2body(error_ned, eta_2)
-		tau = pid(error_body)
-		pub.publish(tau)
-
+	elif task == 'PITCH':
+		error_pitch = wrap2pi(set_tv_reference(eta_2_init[1], eta_2[1], ref.rpy.y) - eta_2[1])
+	elif task == 'HEAVE':
+		error_z = set_tv_reference(eta_1_init[2], eta_1[2], ref.pos.z) - eta_1[2]
+	elif task == 'SURGE':
+		error_x = ref.lin_vel.x - ni_1[0]
+		error_y = ref.pos.y - eta_1[1]			###### da fare
+		error_z = ref.pos.z - eta_1[2]			###### da fare
+	error_ned = np.array([error_x, error_y, error_z, error_roll, error_pitch, error_yaw])
+	error_body = ned2body(error_ned, eta_2)
+	tau = pid(error_body)
+	pub.publish(tau)
 ####################################################################################################################
 
 def control():
