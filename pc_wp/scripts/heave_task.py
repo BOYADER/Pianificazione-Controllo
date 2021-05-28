@@ -8,6 +8,7 @@ from pc_wp.msg import References, State, Odom
 from utils import get_waypoint, clear, isNone
 
 task = None
+waypoint = None
 
 eta_1 = None
 eta_2 = None
@@ -32,7 +33,7 @@ def odom_callback(odom):
 			eta_2_init = eta_2
 	
 def state_callback(state, pub):
-	global task, eta_1, eta_2, eta_1_init, eta_2_init
+	global task, waypoint, eta_1, eta_2, eta_1_init, eta_2_init
 	if state.task == 'HEAVE':
 		task = state.task
 		while isNone([eta_1_init, eta_2_init]):
@@ -40,14 +41,16 @@ def state_callback(state, pub):
 		references = References()
 		references.pos.x = eta_1_init[0]
 		references.pos.y = eta_1_init[1]
-		references.pos.z = get_waypoint(state.wp_index).eta_1[2]
+		if not waypoint:
+			waypoint = get_waypoint(state.wp_index)
+		references.pos.z = waypoint.eta_1[2]
 		references.rpy.x = eta_2_init[0]
 		references.rpy.y = eta_2_init[1]
 		references.rpy.z = eta_2_init[2]
 		pub.publish(references)
 	elif state.task != 'HEAVE':
-		if not isNone([task, eta_1, eta_2, eta_1_init, eta_2_init]):
-			[task, eta_1, eta_2, eta_1_init, eta_2_init] = clear([task, eta_1, eta_2, eta_1_init, eta_2_init])
+		if not isNone([task, waypoint, eta_1, eta_2, eta_1_init, eta_2_init]):
+			[task, waypoint, eta_1, eta_2, eta_1_init, eta_2_init] = clear([task, waypoint, eta_1, eta_2, eta_1_init, eta_2_init])
 
 def heave_task():
 	rospy.init_node('heave_task')

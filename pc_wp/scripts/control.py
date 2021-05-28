@@ -5,7 +5,7 @@ import numpy as np
 import pymap3d as pm
 import time
 from pc_wp.msg import References, State, Odom
-from utils import wrap2pi, isNone
+from utils import wrap2pi, isNone, ned2body
 
 strategy = None
 task = None
@@ -19,12 +19,6 @@ eta_2_init = None
 task_changed = False
 
 time_start = None
-
-#errori
-global position_error_ned, pose_error, velocity_error
-position_error_ned = np.array([references.pose.x - odom.lld.x, references.pose.y - odom.pose.y, references.pose.z - odom.pose.z])
-pose_error = np.array([references.rpy.x - odom.rpy.x, references.rpy.y - odom.rpy.y, references.rpy.z - odom.rpy.z])
-velocity_error = np.array([rospy.get_param('surge_velocity') - odom.lin_vel.x, 0, 0]) 
 
 def odom_callback(odom):
 	global eta_1, eta_2
@@ -48,8 +42,8 @@ def state_callback(state):
 	task = state.task
 	wp_index = state.wp_index
 
-def set_tv_reference(init_value, actual_value, final_value, task):				# set time varying reference signal
-	global time_start, task_changed
+def set_tv_reference(init_value, actual_value, final_value):				# set time varying reference signal
+	global task, time_start, task_changed
 	string_param = 'task_velocity_reference_list/' + task
 	velocity_reference = rospy.get_param(string_param)
 	if not time_start or task_changed:
@@ -62,7 +56,24 @@ def set_tv_reference(init_value, actual_value, final_value, task):				# set time
 	else:
 		return tv_reference
 
-def ref_callback(ref):
+
+##################################### DA FARE ############################################################
+#funzione che prende in ingresso l'errore in body e sputa fuori le tau da pubblicare sul topic wrench
+def pid(error_body):                             #tutte cose da definire come parametri in un file yaml
+    global int_error, dt, UP_SAT, DOWN_SAT, K_P, K_I  #integrale dell'errore, intervallo di tempo, saturazione superiore, saturazione inferiore, matrice dei guadagni P, matrice dei guadagni I 
+    int_error = int_error + (error_body * dt)     #calcolo integrale dell'errore
+    u = np.dot(K_P, error_body) + np.dot(K_I, int_error) #controllore
+   # controllo che nessuna tau superi la saturazione superiore o inferiore
+    for i in range(0, 6):
+        if u[i] > UP_SAT:
+            u[i] = UP_SAT
+            int_error = int_error - (error_body * dt) #anti reset windup
+        elif u[i] < DOWN_SAT:
+            u[i] = DOWN_SAT
+            int_error = int_error - (error_body * dt)
+    return u
+
+def ref_callback(ref, pub):
 	global strategy, task, eta_1, eta_2, eta_1_init, eta_2_init
 	while isNone([eta_1, eta_2, eta_1_init, eta_2_init]):
 		pass
@@ -70,52 +81,21 @@ def ref_callback(ref):
 		error_x = ref.pos.x - eta_1[0]
 		error_y = ref.pos.y - eta_1[1]
 		error_z = ref.pos.z - eta_1[2]
+		error_roll = 0
 		error_pitch = wrap2pi(ref.rpy.y - eta_2[1])
-		error_yaw = wrap2pi(set_tv_reference(eta_init_2[2], eta_2[2], ref.rpy.z, task) - eta_2[2])
-	if task == 'PITCH':
-        while eta_1 is None or eta_2 is None:
-            pass
-        error_x = ref.pos.x - eta_1[0]
-        error_y = ref.pos.y - eta_1[1]
-        error_z = ref.pos.z - eta_1[2]
-        error_pitch = wrap2pi(set_mini_ref(ref.rpy.y) - eta_2[1])
-        error_yaw = wrap2pi(ref.rpy.z - eta_2[2])
+		error_yaw = wrap2pi(set_tv_reference(eta_2_init[2], eta_2[2], ref.rpy.z) - eta_2[2])
+		error_ned = np.array([error_x, error_y, erro_z, error_roll, error_pitch, error_yaw])
+		error_body = ned2body(error_ned, eta_2)
+		tau = pid(error_body)
+		pub.publish(tau)
 
-    if task == 'SURGE': #TODO
-        while eta_1 is None or eta_2 is None:
-            pass
-        error_x = ref.pos.x - eta_1[0]
-        error_y = ref.pos.y - eta_1[1]
-        error_z = ref.pos.z - eta_1[2]
-        error_pitch = wrap2pi(ref.rpy.y - eta_2[1])
-        error_yaw = wrap2pi(set_yaw_ref(ref.rpy.z) - eta_2[2])
-        
-    if task == 'HEAVE':
-        while eta_1 is None or eta_2 is None:
-            pass
-        error_x = ref.pos.x - eta_1[0]
-        error_y = ref.pos.y - eta_1[1]
-        error_z = set_mini_ref(ref.pos.z) - eta_1[2]
-        error_pitch = wrap2pi(ref.rpy.y - eta_2[1])
-        error_yaw = wrap2pi(ref.rpy.z - eta_2[2])
-    if task == 'APPROACH': #TODO
-        while eta_1 is None or eta_2 is None:
-            pass
-        error_x = ref.pos.x - eta_1[0]
-        error_y = ref.pos.y - eta_1[1]
-        error_z = set_mini_ref(ref.pos.z) - eta_1[2]
-        error_pitch = wrap2pi(ref.rpy.y - eta_2[1])
-        error_yaw = wrap2pi(ref.rpy.z - eta_2[2])
-        
-    #alla fine metto tutto in un vettore colonna
-    error = np.array([[error_x, error_y, error_z, error_yaw, error_pitch, error_roll]]).T
-    return error
+####################################################################################################################
 
 def control():
 	rospy.init_node('control')
-	#pub = rospy.Publisher('tau', Tau, queue_size = QUEUE_SIZE)
+	pub = rospy.Publisher('tau', Tau, queue_size = QUEUE_SIZE)
 	rospy.Subscriber('odom', Odom, odom_callback)
-	rospy.Subscriber('references', References, ref_callback)
+	rospy.Subscriber('references', References, ref_callback, pub)
 	rospy.Subscriber('state', State, state_callback)
 	rospy.spin()
 

@@ -8,6 +8,7 @@ from pc_wp.msg import References, State, Odom
 from utils import get_waypoint, clear, isNone
 
 task = None
+waypoint = None
 
 eta_1 = None
 eta_2 = None
@@ -32,7 +33,7 @@ def odom_callback(odom):
 			eta_2_init = eta_2
 
 def state_callback(state, pub):
-	global task, eta_1, eta_2, eta_1_init, eta_2_init
+	global task, waypoint, eta_1, eta_2, eta_1_init, eta_2_init
 	if state.task == 'PITCH':
 		task = state.task
 		while isNone([eta_1, eta_1_init, eta_2_init]):
@@ -42,17 +43,18 @@ def state_callback(state, pub):
 		references.pos.y = eta_1_init[1]
 		references.pos.z = eta_1_init[2]
 		references.rpy.x = eta_2_init[0] 
-		if state.strategy == 1:	
-			references.rpy.y = np.arctan2(	get_waypoint(state.wp_index).eta_1[2] - eta_1[2],
-          						math.sqrt((get_waypoint(state.wp_index).eta_1[0] - eta_1[0])**2 
-								+ (get_waypoint(state.wp_index).eta_1[1] - eta_1[1])**2)))
+		if state.strategy == 1:
+			if not waypoint:
+				waypoint = get_waypoint(state.wp_index)
+			references.rpy.y = np.arctan2(	waypoint.eta_1[2] - eta_1[2],
+          						math.sqrt((waypoint.eta_1[0] - eta_1[0])**2 + (waypoint.eta_1[1] - eta_1[1])**2)))
 		elif state.strategy == 2:
 			references.rpy.y = 0
 		references.rpy.z = eta_2_init[2]
 		pub.publish(references)
 	elif state.task != 'PITCH':
-		if not isNone([task, eta_1, eta_2, eta_1_init, eta_2_init]):
-			[task, eta_1, eta_2, eta_1_init, eta_2_init] = clear([task, eta_1, eta_2, eta_1_init, eta_2_init])
+		if not isNone([task, waypoint, eta_1, eta_2, eta_1_init, eta_2_init]):
+			[task, waypoint, eta_1, eta_2, eta_1_init, eta_2_init] = clear([task, waypoint, eta_1, eta_2, eta_1_init, eta_2_init])
 
 def pitch_task():
 	rospy.init_node('pitch_task')
