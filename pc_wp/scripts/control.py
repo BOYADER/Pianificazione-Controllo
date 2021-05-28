@@ -24,9 +24,9 @@ time_start = None
 global position_error_ned, pose_error, velocity_error
 position_error_ned = np.array([references.pose.x - odom.lld.x, references.pose.y - odom.pose.y, references.pose.z - odom.pose.z])
 pose_error = np.array([references.rpy.x - odom.rpy.x, references.rpy.y - odom.rpy.y, references.rpy.z - odom.rpy.z])
-velocity_error = np.array([rospy.get_param('surge_velocity') - odom.lin_vel.x, 0, 0]) 
+velocity_error = np.array([rospy.get_param('task_velocity_reference_list/SURGE')] - [odom.lin_vel.x, 0, 0])  
 
-def odom_callback(odom):
+def odom_callback(odom):  #funzione richiamata per la pubblicazione per avere info della stima di position e pose 
 	global eta_1, eta_2
 	lld_ned = rospy.get_param('ned_frame_origin')
 	eta_1 = [	pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[0], 
@@ -36,7 +36,7 @@ def odom_callback(odom):
 			odom.rpy.y,
 			odom.rpy.z]
 
-def state_callback(state):
+def state_callback(state): #funzione richiamata per la pubblicazione per avere info sullo stato dell'AUV(a che punto della missione siamo?)
 	global strategy, task, wp_index, task_changed, eta_1_init, eta_2_init		
 	if not task or task != state.task:
 		task_changed = True 	
@@ -64,7 +64,7 @@ def set_tv_reference(init_value, actual_value, final_value, task):				# set time
 
 def ref_callback(ref):
 	global strategy, task, eta_1, eta_2, eta_1_init, eta_2_init
-	while isNone([eta_1, eta_2, eta_1_init, eta_2_init]):
+	while ([eta_1, eta_2, eta_1_init, eta_2_init]) is None:
 		pass
 	if task == 'YAW':
 		error_x = ref.pos.x - eta_1[0]
@@ -75,11 +75,11 @@ def ref_callback(ref):
 	if task == 'PITCH':
         while eta_1 is None or eta_2 is None:
             pass
-        error_x = ref.pos.x - eta_1[0]
-        error_y = ref.pos.y - eta_1[1]
-        error_z = ref.pos.z - eta_1[2]
-        error_pitch = wrap2pi(set_mini_ref(ref.rpy.y) - eta_2[1])
-        error_yaw = wrap2pi(ref.rpy.z - eta_2[2])
+        	error_x = ref.pos.x - eta_1[0]
+        	error_y = ref.pos.y - eta_1[1]
+        	error_z = ref.pos.z - eta_1[2]
+        	error_pitch = wrap2pi(set_mini_ref(ref.rpy.y) - eta_2[1])
+        	error_yaw = wrap2pi(ref.rpy.z - eta_2[2])
 
     if task == 'SURGE': #TODO
         while eta_1 is None or eta_2 is None:
