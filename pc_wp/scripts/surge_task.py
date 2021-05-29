@@ -42,7 +42,7 @@ def state_callback(state, pub):
 		if not waypoint:
 			waypoint = get_waypoint(state.wp_index)
 		references.rpy.y = np.arctan2(	waypoint.eta_1[2] - eta_1[2],
-						math.sqrt((waypoint.eta_1[0] - eta_1[0])**2 + (waypoint.eta_1[1] - eta_1[1])**2)))
+						math.sqrt((waypoint.eta_1[0] - eta_1[0])**2 + (waypoint.eta_1[1] - eta_1[1])**2))
 		references.rpy.z = np.arctan2(	waypoint.eta_1[1] - eta_1[1],  
 						waypoint.eta_1[0] - eta_1[0])
 		references.lin_vel.x = rospy.get_param('task_velocity_reference_list/SURGE')

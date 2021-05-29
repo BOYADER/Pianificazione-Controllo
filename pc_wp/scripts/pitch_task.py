@@ -47,7 +47,7 @@ def state_callback(state, pub):
 			if not waypoint:
 				waypoint = get_waypoint(state.wp_index)
 			references.rpy.y = np.arctan2(	waypoint.eta_1[2] - eta_1[2],
-          						math.sqrt((waypoint.eta_1[0] - eta_1[0])**2 + (waypoint.eta_1[1] - eta_1[1])**2)))
+          						math.sqrt((waypoint.eta_1[0] - eta_1[0])**2 + (waypoint.eta_1[1] - eta_1[1])**2))
 		elif state.strategy == 2:
 			references.rpy.y = 0
 		references.rpy.z = eta_2_init[2]
