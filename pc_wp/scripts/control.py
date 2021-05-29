@@ -114,7 +114,8 @@ def ref_callback(ref):
 		u = eta_1 - eta_1_init
 		v = next_waypoint - eta_1_init
 		u_on_v = projection(u, v)
-		error_pose_ned = u_on_v - u
+		error_y_ned = (u_on_v - u)[1]
+		error_z_ned = (u_on_v - u)[2] 
 	error_xyz_ned = [error_x_ned, error_y_ned, error_z_ned]
 	[error_x_body, error_y_body, error_z_body] = ned2body(error_xyz_ned, eta_2)
 	error_pose_body = [error_x_body, error_y_body, error_z_body, error_roll, error_pitch, error_yaw]

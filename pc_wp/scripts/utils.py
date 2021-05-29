@@ -55,4 +55,4 @@ def ned2body(pos_ned, eta_2):
 def projection(u, v):
 	v_norm = np.sqrt(sum(v ** 2))
 	proj = (np.dot(u, v) / v_norm ** 2) * v
-	return np.array([proj]).T
+	return proj
