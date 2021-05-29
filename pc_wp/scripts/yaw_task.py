@@ -48,6 +48,7 @@ def state_callback(state, pub):
 			waypoint = get_waypoint(state.wp_index)
 		references.rpy.z = np.arctan2(	waypoint.eta_1[1] - eta_1[1],
 						waypoint.eta_1[0] - eta_1[0])
+		print("YAW REF: %s" % (int(round(math.degrees(references.rpy.z)))))
 		pub.publish(references)
 		
 	elif state.task != 'YAW':  

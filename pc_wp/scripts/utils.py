@@ -35,7 +35,7 @@ def get_waypoint(index):
 	else:
 		return None
 
-def ned2body(vector_ned, eta_2):
+def ned2body(pos_ned, eta_2):
 	roll = eta_2[0]
 	pitch = eta_2[1]
 	yaw = eta_2[2]
@@ -48,16 +48,11 @@ def ned2body(vector_ned, eta_2):
 	R_z = np.array([	[math.cos(yaw), math.sin(yaw), 0],
                         	[-math.sin(yaw), math.cos(yaw), 0],
                         	[0, 0, 1]])
-	R_z_t = np.transpose(R_z)
-	R_y_t = np.transpose(R_y)
-	R_x_t = np.transpose(R_x)
-	J1 = np.dot(np.dot(R_z_t, R_y_t), R_x_t)
-   	vector_pos_ned = [	vector_ned[0],
-				vector_ned[1],
-				vector_ned[2]]
-	vector_rpy = [		vector_ned[3],
-				vector_ned[4],
-				vector_ned[5]]
-	vector_pos_body = np.dot(np.transpose(J1), vector_pos_ned)
-	return np.array([vector_pos_body, vector_rpy])
+	R = np.dot(np.dot(R_x, R_y), R_z)
+	pos_body = np.dot(R, pos_ned)
+	return [pos_body[0], pos_body[1], pos_body[2]]
 
+def projection(u, v):
+	v_norm = np.sqrt(sum(v ** 2))
+	proj = (np.dot(u, v) / v_norm ** 2) * v
+	return np.array([proj]).T
