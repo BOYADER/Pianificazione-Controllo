@@ -1,8 +1,16 @@
 #!/usr/bin/env python
+import os
+classes_path = os.getcwd()
+scripts_path = os.path.abspath(os.path.join(classes_path, os.pardir))
+
+import sys
+sys.path.append(scripts_path)
+
 import math
 import numpy as np
 import pymap3d as pm
 import rospy
+
 from utils import wrap2pi
 from Waypoint import Waypoint
 
