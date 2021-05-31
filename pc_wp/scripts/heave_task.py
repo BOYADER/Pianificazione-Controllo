@@ -8,6 +8,7 @@ from pc_wp.msg import References, State, Odom
 from utils import get_waypoint, clear, isNone
 
 task = None
+wp_index = None
 waypoint = None
 
 eta_1 = None
@@ -17,8 +18,8 @@ eta_2_init = None
 
 QUEUE_SIZE = rospy.get_param('QUEUE_SIZE')
 
-def odom_callback(odom):
-	global task, eta_1, eta_2, eta_1_init, eta_2_init
+def odom_callback(odom, pub):
+	global task, wp_index, waypoint, eta_1, eta_2, eta_1_init, eta_2_init
 	if task == 'HEAVE':
 		lld_ned = rospy.get_param('ned_frame_origin')
 		eta_1 = [	pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[0], 
@@ -31,32 +32,33 @@ def odom_callback(odom):
 			eta_1_init = eta_1
 		if not eta_2_init:
 			eta_2_init = eta_2
-	
-def state_callback(state, pub):
-	global task, waypoint, eta_1, eta_2, eta_1_init, eta_2_init
-	if state.task == 'HEAVE':
-		task = state.task
-		while isNone([eta_1_init, eta_2_init]):
-			pass	
 		references = References()
 		references.pos.x = eta_1_init[0]
 		references.pos.y = eta_1_init[1]
 		if not waypoint:
-			waypoint = get_waypoint(state.wp_index)
+			waypoint = get_waypoint(wp_index)
 		references.pos.z = waypoint.eta_1[2]
 		references.rpy.x = eta_2_init[0]
 		references.rpy.y = eta_2_init[1]
 		references.rpy.z = eta_2_init[2]
 		pub.publish(references)
+	elif task != 'HEAVE':  
+		if not isNone([waypoint, eta_1_init, eta_2_init]):
+			[waypoint, eta_1_init, eta_2_init] = clear([waypoint, eta_1_init, eta_2_init])
+	
+def state_callback(state):
+	global task, wp_index
+	if state.task == 'HEAVE':
+		task = state.task
+		wp_index = state.wp_index
 	elif state.task != 'HEAVE':
-		if not isNone([task, waypoint, eta_1, eta_2, eta_1_init, eta_2_init]):
-			[task, waypoint, eta_1, eta_2, eta_1_init, eta_2_init] = clear([task, waypoint, eta_1, eta_2, eta_1_init, eta_2_init])
-
+		if not isNone([task, wp_index]):
+			[task, wp_index] = clear([task, wp_index])
 def heave_task():
 	rospy.init_node('heave_task')
 	pub = rospy.Publisher('references', References, queue_size = QUEUE_SIZE)
-	rospy.Subscriber('state', State, state_callback, pub)
-	rospy.Subscriber('odom', Odom, odom_callback)
+	rospy.Subscriber('state', State, state_callback)
+	rospy.Subscriber('odom', Odom, odom_callback, pub)
 	rospy.spin()
 
 if __name__ == '__main__':

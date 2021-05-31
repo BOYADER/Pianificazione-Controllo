@@ -15,7 +15,7 @@ def navigation():
 	odom_msg.lld.y = 7.640827 
 	odom_msg.lld.z = 0
 	odom_msg.rpy.x = math.radians(0)
-	odom_msg.rpy.y = math.radians(10)
+	odom_msg.rpy.y = math.radians(0)
 	odom_msg.rpy.z = math.radians(30)
 	odom_msg.lin_vel.x = 0
 	odom_msg.lin_vel.y = 0

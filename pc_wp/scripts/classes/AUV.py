@@ -43,8 +43,9 @@ class AUV:
 		return pitch_des
 	
 	def set_strategy(self, pitch_des):		# strategy and task_seq setting 
-		critical_pitch = math.radians(rospy.get_param('critical_pitch'))		
-		if abs(pitch_des) < critical_pitch or abs(pitch_des) > (math.pi - critical_pitch):
+		critical_pitch = math.radians(rospy.get_param('critical_pitch'))
+		critical_depth = rospy.get_param('critical_depth')		
+		if (abs(pitch_des) < critical_pitch or abs(pitch_des) > (math.pi - critical_pitch)) and self.eta_1[2] > critical_depth:
 			self.strategy = 1
 		else:
 			self.strategy = 2
