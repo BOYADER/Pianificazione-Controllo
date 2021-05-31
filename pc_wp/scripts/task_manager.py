@@ -22,6 +22,8 @@ def odom_callback(odom, pub):
 				odom.rpy.x, odom.rpy.y, odom.rpy.z,
 				odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)
 		auv.waypoint = get_waypoint(auv.wp_index)			# set next waypoint
+		print('posizione wp')
+		print(auv.waypoint.eta_1)
 		if not auv.waypoint:
 			end_mission = True
 		else:

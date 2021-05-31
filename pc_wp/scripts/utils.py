@@ -30,6 +30,7 @@ def get_waypoint(index):
 		waypoint = Waypoint(latitude, longitude, depth, lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'])
 		return waypoint
 	elif index == len(rospy.get_param('waypoint_list')):
+		lld_ned = rospy.get_param('ned_frame_origin')
 		waypoint = Waypoint(lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'], lld_ned['latitude'], lld_ned['longitude'], lld_ned['depth'])
 		return waypoint
 	else:
