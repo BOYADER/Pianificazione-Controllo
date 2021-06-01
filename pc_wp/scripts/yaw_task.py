@@ -8,7 +8,6 @@ from pc_wp.msg import References, State, Odom
 from utils import get_waypoint, clear, isNone
 
 task = None
-wp_index = None
 waypoint = None
 
 eta_1 = None
@@ -18,8 +17,8 @@ eta_2_init = None
 
 QUEUE_SIZE = rospy.get_param('QUEUE_SIZE')
 
-def odom_callback(odom, pub): 
-	global task, wp_index, waypoint, eta_1, eta_2, eta_1_init, eta_2_init
+def odom_callback(odom): 
+	global task, eta_1, eta_2, eta_1_init, eta_2_init
 	if task == 'YAW':
 		lld_ned = rospy.get_param('ned_frame_origin')
 		eta_1 = [	pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[0], 
@@ -32,37 +31,36 @@ def odom_callback(odom, pub):
 			eta_1_init = eta_1
 		if not eta_2_init:
 			eta_2_init = eta_2
-		references = References()
-		references.pos.x = eta_1_init[0]
-		references.pos.y = eta_1_init[1]
-		references.pos.z = eta_1_init[2]		
-		references.rpy.x = eta_2_init[0] 	
-		references.rpy.y = eta_2_init[1]
-		if not waypoint:
-			waypoint = get_waypoint(wp_index)
-		references.rpy.z = np.arctan2(	waypoint.eta_1[1] - eta_1[1],
-						waypoint.eta_1[0] - eta_1[0])
-		print("YAW reference: %s" % (int(round(math.degrees(references.rpy.z)))))
-		pub.publish(references)
-	elif task != 'YAW':  
-		if not isNone([waypoint, eta_1_init, eta_2_init]):
-			[waypoint, eta_1_init, eta_2_init] = clear([waypoint, eta_1_init, eta_2_init])
-
 		
-def state_callback(state):
-	global task, wp_index
+def state_callback(state, pub):
+	global task, eta_1, eta_2, eta_1_init, eta_2_init
 	if state.task == 'YAW':  
 		task = state.task
-		wp_index = state.wp_index
+		while isNone([eta_1, eta_2, eta_1_init, eta_2_init]):
+			pass
+		waypoint = get_waypoint(state.wp_index)
+		if waypoint is not None:
+			references = References()
+			references.pos.x = eta_1_init[0]
+			references.pos.y = eta_1_init[1]
+			references.pos.z = eta_1_init[2]		
+			references.rpy.x = eta_2_init[0]	
+			references.rpy.y = eta_2_init[1]
+			references.rpy.z = np.arctan2(	waypoint.eta_1[1] - eta_1[1],
+							waypoint.eta_1[0] - eta_1[0])
+			print("YAW reference: %s" % (int(round(math.degrees(references.rpy.z)))))
+			pub.publish(references)
 	elif state.task != 'YAW':  
-		if not isNone([task, wp_index]):
-			[task, wp_index] = clear([task, wp_index])
+		task = state.task
+		if not isNone([eta_1_init, eta_2_init]):
+			[eta_1_init, eta_2_init] = clear([eta_1_init, eta_2_init])
 
 def yaw_task():
+	global QUEUE_SIZE
 	rospy.init_node('yaw_task')
 	pub = rospy.Publisher('references', References, queue_size = QUEUE_SIZE)
-	rospy.Subscriber('state', State, state_callback)
-	rospy.Subscriber('odom', Odom, odom_callback, pub)
+	rospy.Subscriber('state', State, state_callback, pub)
+	rospy.Subscriber('odom', Odom, odom_callback)
 	rospy.spin()
 
 if __name__ == '__main__':
