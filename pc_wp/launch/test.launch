@@ -1,4 +1,5 @@
 <launch>	
+	<node name="plot" pkg="rqt_plot" type="rqt_plot"/>	
 	<rosparam file = "$(find modellazione)/config/constant.yaml"/>
 	<rosparam file="$(find pc_wp)/config/mission.yaml" />
 	<rosparam file="$(find pc_wp)/config/rospy.yaml" />
@@ -8,7 +9,7 @@
 	<rosparam file="$(find pc_wp)/config/references.yaml" />
 	<node pkg="pc_wp" type="control.py" name="control" output="screen"/>
 	<node pkg="pc_wp" type="pitch_task.py" name="pitch_task"/>
-	<node pkg="pc_wp" type="yaw_task.py" name="yaw_task" />
+	<node pkg="pc_wp" type="yaw_task.py" name="yaw_task" output="screen"/>
 	<node pkg="pc_wp" type="surge_task.py" name="surge_task" output="screen"/>
 	<node pkg="pc_wp" type="approach_task.py" name="approach_task"/>
 	<node pkg="pc_wp" type="heave_task.py" name="heave_task" output="screen"/>

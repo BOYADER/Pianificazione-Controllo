@@ -42,7 +42,6 @@ def state_callback(state, pub):
 		if waypoint is not None:
 			references = References()
 			references.pos.x = waypoint.eta_1[0]
-			print(references.pos.x)
 			references.pos.y = waypoint.eta_1[1]
 			references.pos.z = waypoint.eta_1[2]
 			references.rpy.x = eta_2_init[0]

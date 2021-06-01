@@ -1,8 +1,8 @@
-UP_SAT:   5
-DOWN_SAT: -5
+UP_SAT:   50
+DOWN_SAT: -50
 
 K_P:
-  x: 280
+  x: 4.9
   y: 500
   z: 500
   roll: 0
@@ -11,13 +11,13 @@ K_P:
   ni_1.x: 106
 
 K_I:
-  x: 0.05
+  x: 0
   y: 0.1
   z: 0.1
   roll: 0
   pitch: 1.6
   yaw: 0.04
-  ni_1.x: 0.003
+  ni_1.x: 0.06
 
 
 

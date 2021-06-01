@@ -83,9 +83,8 @@ class AUV:
 		if self.task_seq[self.task_index] == 'YAW' or self.task_seq[self.task_index] == 'PITCH' :
 			print("%s error: %s degrees" % (self.task_seq[self.task_index], int(round(math.degrees(error)))))
 		else:
-			pass
-			#print("%s error: %s meters" % (self.task_seq[self.task_index], error))
-		print("references: %s, task_error: %s" % (references.pos, error))
+			print("%s error: %s meters" % (self.task_seq[self.task_index], round(error)))
+		#print("references: %s, task_error: %s" % (references.pos, error))
 		return error							
 
 

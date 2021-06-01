@@ -55,6 +55,7 @@ def odom_callback(odom):
 	ni_1 = [	odom.lin_vel.x,
 			odom.lin_vel.y,
 			odom.lin_vel.z]
+	print("eta_1: %s, %s, %s, ni_1.x: %s" % (round(eta_1[0],3), round(eta_1[1],3), round(eta_1[2],3), ni_1[0]))
 	
 
 def state_callback(state, pub):
@@ -76,31 +77,30 @@ def state_callback(state, pub):
 	error_pitch = wrap2pi(references.rpy.y - eta_2[1])
 	error_yaw = wrap2pi(references.rpy.z - eta_2[2])
 	error_ni_1_x = None
-	print("control %s" % state.task)
 	if state.task == 'YAW':
 		error_yaw = wrap2pi(set_reference(eta_2_init[2], eta_2[2], references.rpy.z) - eta_2[2])
 	elif state.task == 'PITCH':
 		error_pitch = wrap2pi(set_reference(eta_2_init[1], eta_2[1], references.rpy.y) - eta_2[1])
 	elif state.task == 'HEAVE':
-		#print("eta_1.z: %s" % eta_1[2])
-		#print("eta_2.z: %s" % int(round(math.degrees(eta_2[2]))))
+		error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z) - eta_1[2]
+	elif state.task == 'APPROACH':
+		error_x_ned = set_reference(eta_1_init[0], eta_1[0], references.pos.x) - eta_1[0]
+		error_y_ned = set_reference(eta_1_init[1], eta_1[1], references.pos.y) - eta_1[1]
 		error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z) - eta_1[2]
 	elif state.task == 'SURGE':
-		print(references.pos)
 		error_ni_1_x = references.lin_vel.x - ni_1[0]
 		waypoint = get_waypoint(state.wp_index)
 		u = np.array(eta_1) - np.array(eta_1_init)
 		v = np.array(waypoint.eta_1) - np.array(eta_1_init)
 		u_on_v = projection(u, v)
 		error_y_ned = (np.array(u_on_v) - np.array(u))[1]
-		error_z_ned = (np.array(u_on_v) - np.array(u))[2] 
+		error_z_ned = (np.array(u_on_v) - np.array(u))[2]
 	error_xyz_ned = [error_x_ned, error_y_ned, error_z_ned]
 	[error_x_body, error_y_body, error_z_body] = ned2body(error_xyz_ned, eta_2)
 	error_pose_body = np.array([error_x_body, error_y_body, error_z_body, error_roll, error_pitch, error_yaw])
 	#print("task: %s, error_pose_body: %s" % (task, error_pose_body))
 	u = pid(error_pose_body, error_ni_1_x)
 	tau_ = tau()
-	#print(u[0].size)
 	tau_.tau.force.x = np.float64(u[0]).item()
 	tau_.tau.force.y = np.float64(u[1]).item()
 	tau_.tau.force.z = np.float64(u[2]).item()
@@ -118,10 +118,8 @@ def set_reference(init_value, actual_value, final_value):				# set time varying 
 	dt = time.time() - time_start_ref
 	reference = init_value + np.sign(final_value - actual_value) * velocity_reference * dt
 	if abs(reference) > abs(final_value):
-		#print("final_value: %s" % (final_value))
 		return final_value
 	else:
-		#print("reference: %s" % (reference))
 		return reference
 
 def pid(error_pose_body, error_ni_1_x):
@@ -164,13 +162,13 @@ def pid(error_pose_body, error_ni_1_x):
 	time_start_pid = time.time()
 	int_error = int_error + np.dot(pid_error, dt)
 	u = np.dot(np.diag(K_P), pid_error) + np.dot(np.diag(K_I), int_error)
-	"""for i in range(0, 6):
+	for i in range(0, 6):
 		if u[i] > UP_SAT:
 			u[i] = UP_SAT
-			int_error = int_error - (error_body * dt) # anti reset wind up
+			#int_error = int_error - np.dot(pid_error, dt) # anti reset wind up
 		elif u[i] < DOWN_SAT:
 			u[i] = DOWN_SAT
-			int_error = int_error - (error_body * dt)"""
+			#int_error = int_error - (error_body * dt)
 	return u
 
 def ref_callback(ref):
