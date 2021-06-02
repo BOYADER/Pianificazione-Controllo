@@ -60,7 +60,7 @@ def odom_callback(odom):
 	
 
 def state_callback(state, pub):
-	global task, eta_1, eta_2, eta_1_init, eta_2_init, time_start_ref, references
+	global task, eta_1, eta_2, eta_1_init, eta_2_init, ni_1, time_start_ref, references
 	if not task or task != state.task:
 		references = None
 		int_error = np.array([[0, 0, 0, 0, 0, 0]]).T
@@ -83,13 +83,10 @@ def state_callback(state, pub):
 	error_ni_1_x = None
 	if state.task == 'YAW':
 		error_yaw = wrap2pi(set_reference(eta_2_init[2], eta_2[2], references.rpy.z) - eta_2[2])
-		#print(set_reference(eta_2_init[2], eta_2[2], references.rpy.z))
 	elif state.task == 'PITCH':
 		error_pitch = wrap2pi(set_reference(eta_2_init[1], eta_2[1], references.rpy.y) - eta_2[1])
-		#print(set_reference(eta_2_init[1], eta_2[1], references.rpy.y))
 	elif state.task == 'HEAVE':
 		error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z) - eta_1[2]
-		#print(set_reference(eta_1_init[2], eta_1[2], references.pos.z))
 	elif state.task == 'APPROACH':
 		error_x_ned = set_reference(eta_1_init[0], eta_1[0], references.pos.x) - eta_1[0]
 		error_y_ned = set_reference(eta_1_init[1], eta_1[1], references.pos.y) - eta_1[1]
@@ -101,15 +98,18 @@ def state_callback(state, pub):
 		waypoint = get_waypoint(state.wp_index)
 		u = np.array(eta_1) - np.array(eta_1_init)
 		v = np.array(waypoint.eta_1) - np.array(eta_1_init)
+		print("u: %s, v: %s, eta_1_init: %s" % (u, v, eta_1_init))
 		u_on_v = projection(u, v)
-		error_y_ned = (np.array(u_on_v) - np.array(u))[1]
-		error_z_ned = (np.array(u_on_v) - np.array(u))[2]
-		#print("error_y_ned: %s error_z_ned: %s" % (error_y_ned, error_z_ned))
-	error_xyz_ned = [error_x_ned, error_y_ned, error_z_ned]
+		error_ned = u_on_v - u
+		print("error_ned: %s " % error_ned)
+	if state.task == 'SURGE':
+		error_xyz_ned = error_ned
+	else:
+		error_xyz_ned = [error_x_ned, error_y_ned, error_z_ned]
 	#print("error_xyz_ned: [%s, %s, %s]" % (round(error_xyz_ned[0]), round(error_xyz_ned[1]), error_xyz_ned[2]))
 	[error_x_body, error_y_body, error_z_body] = ned2body(error_xyz_ned, eta_2)
 	error_pose_body = np.array([error_x_body, error_y_body, error_z_body, error_roll, error_pitch, error_yaw])
-	print("eta_1: %s" % eta_1)
+	print("eta_1: %s, eta_2: %s" % (eta_1, eta_2))
 	print("task: %s, error_pose_body: [%s, %s, %s, %s, %s, %s]" % (task,error_pose_body[0],error_pose_body[1],error_pose_body[2],error_pose_body[3],error_pose_body[4],error_pose_body[5]))
 	u = pid(error_pose_body, error_ni_1_x)
 	tau_ = tau()
@@ -130,7 +130,8 @@ def set_reference(init_value, actual_value, final_value):				# set time varying 
 		pass
 	dt = time.time() - time_start_ref
 	reference = init_value + np.sign(final_value - actual_value) * velocity_reference * dt
-	if abs(reference) > abs(final_value):
+	if (final_value < 0 and reference < final_value) or (final_value > 0 and  reference > final_value):   
+		print("CIAOOOOOOOOOOOOOOOO!")
 		return final_value
 	else:
 		return reference

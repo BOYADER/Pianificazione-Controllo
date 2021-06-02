@@ -41,19 +41,18 @@ def ned2body(pos_ned, eta_2):
 	pitch = eta_2[1]
 	yaw = eta_2[2]
 	R_x = np.array([	[1, 0, 0],
-		     		[0, math.cos(roll), math.sin(roll)],
-	                 	[0, -math.sin(roll), math.cos(roll)]])
-	R_y = np.array([	[math.cos(pitch), 0, -math.sin(pitch)],
+		     		[0, math.cos(roll), -math.sin(roll)],
+	                 	[0, math.sin(roll), math.cos(roll)]])
+	R_y = np.array([	[math.cos(pitch), 0, math.sin(pitch)],
 				[0, 1, 0],
-				[math.sin(pitch), 0, math.cos(pitch)]])
-	R_z = np.array([	[math.cos(yaw), math.sin(yaw), 0],
-                        	[-math.sin(yaw), math.cos(yaw), 0],
+				[-math.sin(pitch), 0, math.cos(pitch)]])
+	R_z = np.array([	[math.cos(yaw), -math.sin(yaw), 0],
+                        	[math.sin(yaw), math.cos(yaw), 0],
                         	[0, 0, 1]])
 	R = np.dot(np.dot(R_x, R_y), R_z)
 	pos_body = np.dot(R, pos_ned)
 	return [pos_body[0], pos_body[1], pos_body[2]]
 
 def projection(u, v):
-	v_norm = np.sqrt(sum(v ** 2))
-	proj = (np.dot(u, v) / v_norm ** 2) * v
+	proj = (np.dot(u, v)/np.linalg.norm(v)**2)*v
 	return proj
