@@ -56,7 +56,7 @@ def odom_callback(odom):
 	ni_1 = [	odom.lin_vel.x,
 			odom.lin_vel.y,
 			odom.lin_vel.z]
-	#print("eta_1: %s, %s, %s, ni_1.x: %s, ni_1_z: %s" % (eta_1[0], eta_1[1], eta_1[2], ni_1[0], ni_1[2]))
+	print("ni_1.x: %s" % (ni_1[0]))
 	
 
 def state_callback(state, pub):
@@ -90,10 +90,6 @@ def state_callback(state, pub):
 	elif state.task == 'HEAVE':
 		error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z) - eta_1[2]
 		#print(set_reference(eta_1_init[2], eta_1[2], references.pos.z))
-	elif state.task == 'APPROACH':
-		error_x_ned = set_reference(eta_1_init[0], eta_1[0], references.pos.x) - eta_1[0]
-		error_y_ned = set_reference(eta_1_init[1], eta_1[1], references.pos.y) - eta_1[1]
-		error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z) - eta_1[2]
 	elif state.task == 'SURGE':
 		error_ni_1_x = references.lin_vel.x - ni_1[0]
 		print("error_ni_x: %s" % error_ni_1_x)
@@ -109,7 +105,7 @@ def state_callback(state, pub):
 	#print("error_xyz_ned: [%s, %s, %s]" % (round(error_xyz_ned[0]), round(error_xyz_ned[1]), error_xyz_ned[2]))
 	[error_x_body, error_y_body, error_z_body] = ned2body(error_xyz_ned, eta_2)
 	error_pose_body = np.array([error_x_body, error_y_body, error_z_body, error_roll, error_pitch, error_yaw])
-	print("task: %s, error_pose_body: [%s, %s, %s, %s, %s, %s]" % (task,round(error_pose_body[0]),round(error_pose_body[1]),round(error_pose_body[2]),error_pose_body[3],error_pose_body[4],error_pose_body[5]))
+	print("task: %s, error_pose_body: [%s, %s, %s, %s, %s, %s]" % (task,error_pose_body[0],error_pose_body[1],error_pose_body[2],error_pose_body[3],error_pose_body[4],error_pose_body[5]))
 	u = pid(error_pose_body, error_ni_1_x)
 	tau_ = tau()
 	tau_.tau.force.x = np.float64(u[0]).item()

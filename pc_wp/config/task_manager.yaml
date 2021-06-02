@@ -18,7 +18,7 @@ task_tolerance_list:
   YAW:       0.1                     # [°]
   PITCH:     0                      # [°]
   HEAVE:     2                   # [m]
-  SURGE:     20                     # [m]
+  SURGE:     50                     # [m]
   APPROACH:  10                     # [m]    same as tolerance_on_waypoint in mission.yaml
 
 
