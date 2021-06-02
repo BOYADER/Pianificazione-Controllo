@@ -109,6 +109,7 @@ def state_callback(state, pub):
 	#print("error_xyz_ned: [%s, %s, %s]" % (round(error_xyz_ned[0]), round(error_xyz_ned[1]), error_xyz_ned[2]))
 	[error_x_body, error_y_body, error_z_body] = ned2body(error_xyz_ned, eta_2)
 	error_pose_body = np.array([error_x_body, error_y_body, error_z_body, error_roll, error_pitch, error_yaw])
+	print("eta_1: %s" % eta_1)
 	print("task: %s, error_pose_body: [%s, %s, %s, %s, %s, %s]" % (task,error_pose_body[0],error_pose_body[1],error_pose_body[2],error_pose_body[3],error_pose_body[4],error_pose_body[5]))
 	u = pid(error_pose_body, error_ni_1_x)
 	tau_ = tau()
@@ -169,6 +170,7 @@ def pid(error_pose_body, error_ni_1_x):
 			gains_I[3],
 			gains_I[4],
 			gains_I[5]]
+	print("pid_error %s" % pid_error)
 	pid_error = pid_error.T
 	dt = time.time() - time_start_pid
 	time_start_pid = time.time()
