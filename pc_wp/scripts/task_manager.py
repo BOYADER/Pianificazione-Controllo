@@ -56,14 +56,12 @@ def odom_callback(odom, pub):
 		state = State()							# prepare msg State to task_nodes
 		state.strategy = auv.strategy
 		state.task = auv.task_seq[auv.task_index]
-		print(state.task)
 		state.wp_index = auv.wp_index
 		pub.publish(state)						# msg published to topic
 
 def ref_callback(ref):
 	global references, auv
 	references = ref
-	#print(ref, auv.task_seq[auv.task_index])
 
 def task_manager():
 	global QUEUE_SIZE
