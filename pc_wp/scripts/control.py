@@ -90,6 +90,10 @@ def state_callback(state, pub):
 	elif state.task == 'HEAVE':
 		error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z) - eta_1[2]
 		#print(set_reference(eta_1_init[2], eta_1[2], references.pos.z))
+	elif state.task == 'APPROACH':
+		error_x_ned = set_reference(eta_1_init[0], eta_1[0], references.pos.x) - eta_1[0]
+		error_y_ned = set_reference(eta_1_init[1], eta_1[1], references.pos.y) - eta_1[1]
+		error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z) - eta_1[2]
 	elif state.task == 'SURGE':
 		error_ni_1_x = references.lin_vel.x - ni_1[0]
 		print("error_ni_x: %s" % error_ni_1_x)
