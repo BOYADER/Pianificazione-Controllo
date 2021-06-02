@@ -35,7 +35,7 @@ def odom_callback(odom, pub):
 				odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)	
 		if references is not None:	
 			task_error = auv.task_error(references)				# task_error computation		
-			if abs(task_error) < auv.tolerance:				# check if current task is completed or not
+			if abs(task_error) <= auv.tolerance:				# check if current task is completed or not
 				if auv.task_index == len(auv.task_seq) - 1:		# waypoint approached
 					references = None
 					auv.task_index = 0				# task_index reset
