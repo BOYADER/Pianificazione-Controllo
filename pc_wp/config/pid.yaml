@@ -3,12 +3,12 @@ DOWN_SAT: -100
 
 K_P:
   x: 4.9
-  y: 30
-  z: 30
+  y: 5
+  z: 5
   roll: 0
   pitch: 2.5
   yaw: 12.2
-  ni_1.x: 106
+  ni_1.x: 200
 
 K_I:
   x: 0
