@@ -52,6 +52,7 @@ def state_callback(state, pub):
 				references.rpy.y = 0
 			references.rpy.z = eta_2_init[2]
 			pub.publish(references)
+			print("PITCH reference: %s deg" % (int(round(math.degrees(references.rpy.y)))))
 	elif state.task != 'PITCH':
 		task = state.task
 		if not isNone([eta_1_init, eta_2_init]):

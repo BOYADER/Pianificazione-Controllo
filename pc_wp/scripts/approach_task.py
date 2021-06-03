@@ -45,11 +45,12 @@ def state_callback(state, pub):
 			references.pos.y = waypoint.eta_1[1]
 			references.pos.z = waypoint.eta_1[2]	
 			references.rpy.x = eta_2_init[0]	
-			references.rpy.y = eta_2_init[1]#np.arctan2(	waypoint.eta_1[2] - eta_1[2],
-							#math.sqrt((waypoint.eta_1[0] - eta_1[0])**2 + (waypoint.eta_1[1] - eta_1[1])**2))
-			references.rpy.z = eta_2_init[2]#np.arctan2(	waypoint.eta_1[1] - eta_1[1],  
-							#waypoint.eta_1[0] - eta_1[0])
+			references.rpy.y = eta_2_init[1]
+			references.rpy.z = eta_2_init[2]
 			pub.publish(references)
+			print("APPROACH reference: [%s m, %s m, %s m ]" % (	int(round(references.pos.x)),
+										int(round(references.pos.y)),
+										int(round(references.pos.z))))
 	elif state.task != 'APPROACH':
 		task = state.task
 		if not isNone([eta_1_init, eta_2_init]):

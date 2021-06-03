@@ -46,9 +46,9 @@ def state_callback(state, pub):
 			references.pos.z = waypoint.eta_1[2]
 			references.rpy.x = eta_2_init[0]
 			references.rpy.y = eta_2_init[1]
-			#print("reference yaw: %s" % int(round(math.degrees(eta_2_init[2]))))
 			references.rpy.z = eta_2_init[2]
 			pub.publish(references)
+			print("HEAVE reference: %s m" % (int(round(references.pos.z))))
 	elif state.task != 'HEAVE':
 		task = state.task
 		if not isNone([eta_1_init, eta_2_init]):

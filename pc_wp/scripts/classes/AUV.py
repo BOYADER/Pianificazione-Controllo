@@ -39,7 +39,7 @@ class AUV:
 	def pitch_desired(self):			# compute pitch_des in order to decide the strategy
 		pitch_des = -np.arctan2(	self.waypoint.eta_1[2] - self.eta_1[2],
 						math.sqrt((self.waypoint.eta_1[0] - self.eta_1[0])**2 + (self.waypoint.eta_1[1] - self.eta_1[1])**2))
-		print("pitch_des: %s" % math.degrees(pitch_des))
+		print("pitch desired: %s" % int(round(math.degrees(pitch_des))))
 		return pitch_des
 	
 	def set_strategy(self, pitch_des):		# strategy and task_seq setting 
@@ -81,10 +81,9 @@ class AUV:
 						(references.pos.z - self.eta_1[2])**2)
 			
 		if self.task_seq[self.task_index] == 'YAW' or self.task_seq[self.task_index] == 'PITCH' :
-			print("%s error: %s degrees" % (self.task_seq[self.task_index], int(round(math.degrees(error)))))
+			print("%s error: %s deg" % (self.task_seq[self.task_index], int(round(math.degrees(error)))))
 		else:
-			print("%s error: %s meters" % (self.task_seq[self.task_index], round(error)))
-		#print("references: %s, task_error: %s" % (references.pos, error))
+			print("%s error: %s m" % (self.task_seq[self.task_index], round(error)))
 		return error							
 
 

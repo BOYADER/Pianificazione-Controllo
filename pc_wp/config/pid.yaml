@@ -6,7 +6,7 @@ K_P:
   y: 5
   z: 5
   roll: 0
-  pitch: 2.5
+  pitch: 2
   yaw: 12.2
   ni_1.x: 200
 
@@ -15,7 +15,7 @@ K_I:
   y: 0
   z: 0
   roll: 0
-  pitch: 0
+  pitch: 18
   yaw: 0
   ni_1.x: 0
 

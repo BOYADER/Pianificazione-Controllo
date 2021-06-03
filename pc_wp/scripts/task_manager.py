@@ -3,7 +3,7 @@ import rospy
 import math
 from classes.AUV import AUV
 from classes.Waypoint import Waypoint
-from utils import get_waypoint
+from utils import get_waypoint, print_adv
 from pc_wp.msg import Odom, References, State
 	
 auv = None
@@ -33,6 +33,7 @@ def odom_callback(odom, pub):
 		auv.update(	odom.lld.x, odom.lld.y, odom.lld.z,		# update eta_1, eta_2, ni_1
 				odom.rpy.x, odom.rpy.y, odom.rpy.z,
 				odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)	
+		print_adv("WAYPOINT n. %s" % (auv.wp_index + 1))
 		if references is not None:	
 			task_error = auv.task_error(references)				# task_error computation		
 			if abs(task_error) <= auv.tolerance:				# check if current task is completed or not
@@ -43,13 +44,14 @@ def odom_callback(odom, pub):
 					auv.waypoint = get_waypoint(auv.wp_index)	# next waypoint
 					if not auv.waypoint:
 						end_mission = True
-					else:
+						print_adv("MISSION ENDED")
+					else:						
 						auv.print_waypoint()					
 						pitch_des = auv.pitch_desired()		# compute pitch_des to decide the strategy
 						auv.set_strategy(pitch_des)		# set strategy and task_sequence		
 						auv.set_tolerance()			# set task tolerance error
 				else:							# task completed, waypoint not yet approached
-					references = None				
+					references = None
 					auv.task_index = auv.task_index + 1		# next task
 					auv.set_tolerance()				# update task tolerance
 	if not end_mission:	

@@ -48,8 +48,8 @@ def state_callback(state, pub):
 			references.rpy.y = eta_2_init[1]
 			references.rpy.z = np.arctan2(	waypoint.eta_1[1] - eta_1[1],
 							waypoint.eta_1[0] - eta_1[0])
-			print("YAW reference: %s" % (int(round(math.degrees(references.rpy.z)))))
 			pub.publish(references)
+			print("YAW reference: %s deg" % (int(round(math.degrees(references.rpy.z)))))
 	elif state.task != 'YAW':  
 		task = state.task
 		if not isNone([eta_1_init, eta_2_init]):
