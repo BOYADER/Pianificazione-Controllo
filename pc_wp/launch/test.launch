@@ -1,4 +1,5 @@
 <launch>	
+	<node name="plot" pkg="rqt_plot" type="rqt_plot"/>
 	<rosparam file = "$(find modellazione)/config/constant.yaml"/>
 	<rosparam file="$(find pc_wp)/config/mission.yaml" />
 	<rosparam file="$(find pc_wp)/config/rospy.yaml" />
