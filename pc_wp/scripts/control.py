@@ -98,7 +98,7 @@ def state_callback(state, pub):
 	error_pose_body = np.array([error_x_body, error_y_body, error_z_body, error_roll, error_pitch, error_yaw])
 	print("eta_1: [%s, %s, %s], eta_2: [%s, %s, %s]" % (	int(round(eta_1[0])),
 								int(round(eta_1[1])),
-								int(round(eta_1[2])),
+								eta_1[2],
 								int(round(math.degrees(eta_2[0]))),
 								int(round(math.degrees(eta_2[1]))),
 								int(round(math.degrees(eta_2[2])))))

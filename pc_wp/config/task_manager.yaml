@@ -17,7 +17,7 @@ task_seq_list:                      # strategy 0: not set - init
 task_tolerance_list:
   YAW:       3                      # [°]
   PITCH:     3                      # [°]
-  HEAVE:     1                      # [m]
+  HEAVE:     0.2                     # [m]
   SURGE:     20                     # [m]
   APPROACH:  10                     # [m]    same as tolerance_on_waypoint in mission.yaml
 
