@@ -11,9 +11,11 @@ task = None
 
 eta_1 = None
 eta_2 = None
+ni_1 = None
+
 eta_1_init = None
 eta_2_init = None
-ni_1 = None
+ni_1_init = None
 
 gains_P = [	rospy.get_param('K_P')['x'],
 		rospy.get_param('K_P')['y'],
@@ -57,15 +59,16 @@ def odom_callback(odom):
 			odom.lin_vel.z]	
 
 def state_callback(state, pub):
-	global task, eta_1, eta_2, eta_1_init, eta_2_init, ni_1, time_start_ref, references
+	global task, eta_1, eta_2, ni_1, eta_1_init, eta_2_init, ni_1_init, time_start_ref, references
 	if not task or task != state.task:
 		references = None
 		int_error = np.array([[0, 0, 0, 0, 0, 0]]).T
 		time_start_ref = time.time()
-		while isNone([eta_1, eta_2]):
+		while isNone([eta_1, eta_2, ni_1]):
 			pass
 		eta_1_init = eta_1
 		eta_2_init = eta_2	
+		ni_1_init = ni_1
 	task = state.task
 	while isNone([eta_1_init, eta_2_init, references]):
 		pass
@@ -88,7 +91,11 @@ def state_callback(state, pub):
 		error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z, 'APPROACH') - eta_1[2]
 		error_pitch = wrap2pi(set_reference(eta_2_init[1], eta_2[1], references.rpy.y, 'PITCH') - eta_2[1])
 	elif state.task == 'SURGE':
-		error_ni_1_x = references.lin_vel.x - ni_1[0]
+		tolerance = rospy.get_param('references/SURGE/tolerance')
+		if abs(references.lin_vel.x - ni_1[0]) < tolerance:
+			error_ni_1_x = references.lin_vel.x - ni_1[0]
+		else:
+			error_ni_1_x = set_reference(ni_1_init[0], ni_1[0], references.lin_vel.x, 'SURGE') - ni_1[0]
 		waypoint = get_waypoint(state.wp_index)
 		u = np.array(eta_1) - np.array(eta_1_init)
 		v = np.array(waypoint.eta_1) - np.array(eta_1_init)

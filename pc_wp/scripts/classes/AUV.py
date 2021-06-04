@@ -79,7 +79,6 @@ class AUV:
 			error = math.sqrt(	(references.pos.x - self.eta_1[0])**2 + 	
 						(references.pos.y - self.eta_1[1])**2 + 
 						(references.pos.z - self.eta_1[2])**2)
-			
 		if self.task_seq[self.task_index] == 'YAW' or self.task_seq[self.task_index] == 'PITCH' :
 			print("%s error: %s deg" % (self.task_seq[self.task_index], int(round(math.degrees(error)))))
 		else:
