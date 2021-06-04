@@ -8,11 +8,11 @@
 	<rosparam file="$(find pc_wp)/config/pid.yaml" />
 	<rosparam file="$(find pc_wp)/config/references.yaml" />
 	<node pkg="pc_wp" type="control.py" name="control" output="screen"/>
-	<node pkg="pc_wp" type="pitch_task.py" name="pitch_task"/>
+	<node pkg="pc_wp" type="pitch_task.py" name="pitch_task" output="screen"/>
 	<node pkg="pc_wp" type="yaw_task.py" name="yaw_task" output="screen"/>
-	<node pkg="pc_wp" type="surge_task.py" name="surge_task"/>
-	<node pkg="pc_wp" type="approach_task.py" name="approach_task"/>
-	<node pkg="pc_wp" type="heave_task.py" name="heave_task"/>
+	<node pkg="pc_wp" type="surge_task.py" name="surge_task" output="screen"/>
+	<node pkg="pc_wp" type="approach_task.py" name="approach_task" output="screen"/>
+	<node pkg="pc_wp" type="heave_task.py" name="heave_task" output="screen"/>
 	<node pkg="pc_wp" type="task_manager.py" name="task_manager" output="screen"/>
 	<node pkg="pc_wp" type="navigation.py" name="navigation"/>
 	<node name ="model" pkg="modellazione" type="model"/>
