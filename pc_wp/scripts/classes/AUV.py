@@ -83,7 +83,7 @@ class AUV:
 		if self.task_seq[self.task_index] == 'YAW' or self.task_seq[self.task_index] == 'PITCH' :
 			print("%s error: %s deg" % (self.task_seq[self.task_index], int(round(math.degrees(error)))))
 		else:
-			print("%s error: %s m" % (self.task_seq[self.task_index], round(error)))
+			print("%s error: %s m" % (self.task_seq[self.task_index], round(error, 2)))
 		return error							
 
 

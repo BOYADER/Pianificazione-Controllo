@@ -3,5 +3,5 @@ task_velocity_reference_list:
   PITCH:    0.1                     # [rad/s]
   HEAVE:    0.2                     # [m/s]
   SURGE:    1                       # [m/s]
-  APPROACH: 0.5                    # [m/s]
+  APPROACH: 0.5                   # [m/s]
 

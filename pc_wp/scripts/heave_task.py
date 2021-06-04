@@ -48,7 +48,7 @@ def state_callback(state, pub):
 			references.rpy.y = eta_2_init[1]
 			references.rpy.z = eta_2_init[2]
 			pub.publish(references)
-			print("HEAVE reference: %s m" % (int(round(references.pos.z))))
+			print("HEAVE reference: %s m" % (round(references.pos.z,1)))
 	elif state.task != 'HEAVE':
 		task = state.task
 		if not isNone([eta_1_init, eta_2_init]):

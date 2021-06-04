@@ -44,17 +44,13 @@ def state_callback(state, pub):
 			references.pos.x = waypoint.eta_1[0]
 			references.pos.y = waypoint.eta_1[1]
 			references.pos.z = waypoint.eta_1[2]	
-			references.rpy.x = eta_2_init[0]
-			critical_depth = rospy.get_param('critical_depth')	
-			if waypoint.eta_1[2] < critical_depth:
-				references.rpy.y = 0
-			else:
-				references.rpy.y = eta_2_init[1]
+			references.rpy.x = eta_2_init[0]	
+			references.rpy.y = 0
 			references.rpy.z = eta_2_init[2]
 			pub.publish(references)
-			print("APPROACH reference: [%s m, %s m, %s m ]" % (	int(round(references.pos.x)),
-										int(round(references.pos.y)),
-										int(round(references.pos.z))))
+			print("APPROACH reference: [%s m, %s m, %s m ]" % (	round(references.pos.x, 2),
+										round(references.pos.y, 2),
+										round(references.pos.z, 2)))
 	elif state.task != 'APPROACH':
 		task = state.task
 		if not isNone([eta_1_init, eta_2_init]):

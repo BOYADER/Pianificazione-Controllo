@@ -49,7 +49,7 @@ def state_callback(state, pub):
 			references.rpy.z = eta_2_init[2]
 			references.lin_vel.x = rospy.get_param('task_velocity_reference_list/SURGE')
 			pub.publish(references)
-			print("SURGE reference: %s m/s" % (int(round(references.lin_vel.x))))
+			print("SURGE reference: %s m/s" % (round(references.lin_vel.x, 2)))
 	elif state.task != 'SURGE':
 		task = state.task
 		if not isNone([eta_1_init, eta_2_init]):
