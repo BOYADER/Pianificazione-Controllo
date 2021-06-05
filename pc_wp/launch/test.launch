@@ -14,6 +14,6 @@
 	<node pkg="pc_wp" type="approach_task.py" name="approach_task" output="screen"/>
 	<node pkg="pc_wp" type="heave_task.py" name="heave_task" output="screen"/>
 	<node pkg="pc_wp" type="task_manager.py" name="task_manager" output="screen"/>
-	<node pkg="pc_wp" type="navigation.py" name="navigation"/>
+	<node pkg="pc_wp" type="navigation.py" name="navigation" output="screen"/>
 	<node name ="model" pkg="modellazione" type="model"/>
 </launch>

@@ -15,6 +15,10 @@ eta_2 = None
 eta_1_init = None
 eta_2_init = None
 
+distance_tolerance = rospy.get_param('references/SURGE/distance_tolerance')
+surge_reference_high = rospy.get_param('references/SURGE/high')
+surge_reference_low = rospy.get_param('references/SURGE/low')
+
 QUEUE_SIZE = rospy.get_param('QUEUE_SIZE')
 
 def odom_callback(odom):
@@ -33,7 +37,7 @@ def odom_callback(odom):
 			eta_2_init = eta_2
 		
 def state_callback(state, pub):
-	global task, eta_1, eta_2, eta_1_init, eta_2_init
+	global task, eta_1, eta_2, eta_1_init, eta_2_init, distance_tolerance, final_inc, final_dec
 	if state.task == 'SURGE':
 		task = state.task
 		while isNone([eta_1, eta_2, eta_1_init, eta_2_init]):
@@ -47,7 +51,13 @@ def state_callback(state, pub):
 			references.rpy.x = eta_2_init[0]
 			references.rpy.y = eta_2_init[1]
 			references.rpy.z = eta_2_init[2]
-			references.lin_vel.x = rospy.get_param('references/SURGE/final')
+			distance = math.sqrt(	(references.pos.x - eta_1[0])**2 + 	
+						(references.pos.y - eta_1[1])**2 + 
+						(references.pos.z - eta_1[2])**2)		
+			if distance <= distance_tolerance:
+				references.lin_vel.x = surge_reference_low
+			else:
+				references.lin_vel.x = surge_reference_high
 			pub.publish(references)
 			print("SURGE reference: %s m/s" % (round(references.lin_vel.x, 2)))
 	elif state.task != 'SURGE':
