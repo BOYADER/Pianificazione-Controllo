@@ -10,7 +10,6 @@ import math
 import numpy as np
 import pymap3d as pm
 import rospy
-
 from utils import wrap2pi
 from Waypoint import Waypoint
 
@@ -21,7 +20,9 @@ class AUV:
 		self.eta_1 = [	pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[0], 
 			      	pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[1],
 				pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[2]]
-		self.eta_2 = [roll, pitch, yaw]
+		self.eta_2 = [	wrap2pi(roll), 
+				wrap2pi(pitch),
+				wrap2pi(yaw)]
 		self.ni_1 = [vx, vy, vz]
 		self.strategy = 0
 		self.task_seq = []

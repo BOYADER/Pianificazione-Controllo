@@ -17,21 +17,8 @@ eta_1_init = None
 eta_2_init = None
 ni_1_init = None
 
-gains_P = [	rospy.get_param('K_P')['x'],
-		rospy.get_param('K_P')['y'],
-		rospy.get_param('K_P')['z'],
-		rospy.get_param('K_P')['roll'],
-		rospy.get_param('K_P')['pitch'],
-		rospy.get_param('K_P')['yaw'],
-		rospy.get_param('K_P')['ni_1.x']]
-	
-gains_I = [	rospy.get_param('K_I')['x'],
-		rospy.get_param('K_I')['y'],
-		rospy.get_param('K_I')['z'],
-		rospy.get_param('K_I')['roll'],
-		rospy.get_param('K_I')['pitch'],
-		rospy.get_param('K_I')['yaw'],
-		rospy.get_param('K_I')['ni_1.x']]
+gains_P = []	
+gains_I = []
 
 UP_SAT = rospy.get_param('UP_SAT')
 DOWN_SAT = rospy.get_param('DOWN_SAT')
@@ -71,9 +58,11 @@ def odom_callback(odom):
 			odom.lin_vel.z]	
 
 def state_callback(state, pub):
-	global task, eta_1, eta_2, ni_1, eta_1_init, eta_2_init, ni_1_init, time_start_ref, references, tolerance, surge_reference_high, surge_reference_low, reset_time, stop_set_reference, int_error
+	global task, eta_1, eta_2, ni_1, eta_1_init, eta_2_init, ni_1_init, time_start_ref, references, tolerance, surge_reference_high, surge_reference_low, reset_time, stop_set_reference, int_error, gains_P, gains_I
 	if not task or task != state.task:
 		references = None
+		gains_P = rospy.get_param('gains_P/' + state.task)
+		gains_I = rospy.get_param('gains_I/' + state.task)
 		int_error = np.array([[0, 0, 0, 0, 0, 0]]).T
 		time_start_ref = time.time()
 		while isNone([eta_1, eta_2, ni_1]):
@@ -198,37 +187,13 @@ def pid(error_pose_body, error_ni_1_x):
 					error_pose_body[3],
 					error_pose_body[4],
 					error_pose_body[5]]])
-		K_P = [	gains_P[6],
-			gains_P[1],
-			gains_P[2],
-			gains_P[3],
-			gains_P[4],
-			gains_P[5]]
-		K_I = [	gains_I[6],
-			gains_I[1],
-			gains_I[2],
-			gains_I[3],
-			gains_I[4],
-			gains_I[5]]
 	else:
 		pid_error = np.array([error_pose_body])
-		K_P = [	gains_P[0],
-			gains_P[1],
-			gains_P[2],
-			gains_P[3],
-			gains_P[4],
-			gains_P[5]]
-		K_I = [	gains_I[0],
-			gains_I[1],
-			gains_I[2],
-			gains_I[3],
-			gains_I[4],
-			gains_I[5]]
 	pid_error = pid_error.T
 	dt = time.time() - time_start_pid
 	time_start_pid = time.time()
 	int_error = int_error + np.dot(pid_error, dt)
-	u = np.dot(np.diag(K_P), pid_error) + np.dot(np.diag(K_I), int_error)
+	u = np.dot(np.diag(gains_P), pid_error) + np.dot(np.diag(gains_I), int_error)
 	for i in range(0, len(u)):
 		if u[i] > UP_SAT:
 			u[i] = UP_SAT

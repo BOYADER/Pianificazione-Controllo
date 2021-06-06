@@ -24,9 +24,10 @@
 	<node pkg="pc_wp" type="heave_task.py" name="heave_task" output="screen"/>
 	<node pkg="pc_wp" type="task_manager.py" name="task_manager" output="screen"/>
 
-	<!--<node name="plot_tau" pkg="rqt_plot" type="rqt_plot" args="/tau/tau/force /tau/tau/torque"/>-->
+	<!--<node name="plot_tau" pkg="rqt_plot" type="rqt_plot" args="/tau/tau/force /tau/tau/torque"/>
 	<node name="plot_pos" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_1"/>
 	<node name="plot_rpy" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_2"/>
 	<node name="plot_ni" pkg="rqt_plot" type="rqt_plot" args="/state_real/ni_1"/>
-	<!--<node name="plot_acc" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_1_dot_dot"/>-->
+	<node name="plot_acc" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_1_dot_dot"/>-->
+	<node name="plot_rpy" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_2/z"/>
 </launch>

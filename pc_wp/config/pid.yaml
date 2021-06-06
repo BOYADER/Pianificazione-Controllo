@@ -1,23 +1,25 @@
 UP_SAT:   100
 DOWN_SAT: -100
 
-K_P:
-  x: 4.9
-  y: 5
-  z: 200
-  roll: 0
-  pitch: 2
-  yaw: 12.2
-  ni_1.x: 100
+gains_P:
+  YAW:        [4.9, 5, 200, 0, 2, 70]
+  PITCH:      [4.9, 5, 200, 0, 2, 70]
+  HEAVE:      [4.9, 5, 200, 0, 2, 70]
+  SURGE:      [100, 5, 200, 0, 2, 70]
+  APPROACH:   [4.9, 5, 200, 0, 2, 70]
 
-K_I:
-  x: 0
-  y: 0
-  z: 0.1
-  roll: 0
-  pitch: 18
-  yaw: 0
-  ni_1.x: 20
+gains_I:
+  YAW:        [0, 0, 0.1, 0, 18, 0]
+  PITCH:      [0, 0, 0.1, 0, 18, 0]
+  HEAVE:      [0, 0, 0.1, 0, 18, 0]
+  SURGE:      [20, 0, 0.1, 0, 18, 0]
+  APPROACH:   [0, 0, 0.1, 0, 18, 0]
+
+
+
+#K_P: x = 4.9 y = 5, z = 200, roll: 0, pitch: 2, yaw: 70, ni_1.x: 100
+#K_I: x = 0 y = 0, z = 0.1, roll: 0, pitch: 18, yaw: 0, ni_1.x: 20
+
 
 
 
