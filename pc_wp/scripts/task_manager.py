@@ -18,6 +18,7 @@ def odom_callback(odom, pub):
 		rospy.set_param('ned_frame_origin', {	'latitude': odom.lld.x, 	# set ned_origin on the utils.yaml file
 							'longitude': odom.lld.y,
 							'depth': odom.lld.z})
+		print(odom)
 		auv = AUV(	odom.lld.x, odom.lld.y, odom.lld.z,		# create AUV object
 				odom.rpy.x, odom.rpy.y, odom.rpy.z,
 				odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)

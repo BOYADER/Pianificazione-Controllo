@@ -155,20 +155,20 @@ def state_callback(state, pub):
 					round(ni_1[1], 2),
 					round(ni_1[2], 2)))
 	u = pid(error_pose_body, error_ni_1_x)
-	tau_ = tau()
-	tau_.tau.force.x = np.float64(u[0]).item()
-	tau_.tau.force.y = np.float64(u[1]).item()
-	tau_.tau.force.z = np.float64(u[2]).item()
-	tau_.tau.torque.x = 0  					# not actuated
- 	tau_.tau.torque.y = np.float64(u[4]).item()
-	tau_.tau.torque.z = np.float64(u[5]).item()
-	pub.publish(tau_)
-	print("force: [%s, %s, %s]\ntorque: [%s, %s, %s]" % (	round(tau_.tau.force.x, 2),
-								round(tau_.tau.force.y, 2),
-								round(tau_.tau.force.z, 2),
-								round(tau_.tau.torque.x, 2),
-								round(tau_.tau.torque.y, 2),
-								round(tau_.tau.torque.z, 2)))
+	control = tau()
+	control.tau.force.x = np.float64(u[0]).item()
+	control.tau.force.y = np.float64(u[1]).item()
+	control.tau.force.z = np.float64(u[2]).item()
+	control.tau.torque.x = 0  					# not actuated
+ 	control.tau.torque.y = np.float64(u[4]).item()
+	control.tau.torque.z = np.float64(u[5]).item()
+	pub.publish(control)
+	print("force: [%s, %s, %s]\ntorque: [%s, %s, %s]" % (	round(control.tau.force.x, 2),
+								round(control.tau.force.y, 2),
+								round(control.tau.force.z, 2),
+								round(control.tau.torque.x, 2),
+								round(control.tau.torque.y, 2),
+								round(control.tau.torque.z, 2)))
 
 def set_reference(init_value, actual_value, final_value, task_value, index):				# set time varying reference signal
 	global time_start_ref, stop_set_reference
@@ -177,12 +177,12 @@ def set_reference(init_value, actual_value, final_value, task_value, index):				
 	while not time_start_ref:
 		pass
 	dt = time.time() - time_start_ref
+	time_start_ref = time.time()
 	if task_value == 'PITCH' or task_value == 'YAW':
 		sign = np.sign(wrap2pi(final_value - actual_value))
 	else:
 		sign = np.sign(final_value - actual_value)
-	reference = init_value + sign * velocity_reference * dt
-	print("mini ref: %s, task: %s, init: %s, actual: %s, final: %s" % (reference, task_value, init_value, actual_value, final_value))
+	reference = actual_value + sign * velocity_reference * dt 
 	if (final_value > 0 and reference > 0 and sign == 1 and reference > final_value) or (final_value > 0 and reference > 0 and sign == -1 and reference < final_value) or (final_value < 0 and reference < 0 and sign == 1 and reference > final_value) or (final_value < 0 and reference < 0 and sign == -1 and reference < final_value):   
 		stop_set_reference[index] = True
 		return final_value
