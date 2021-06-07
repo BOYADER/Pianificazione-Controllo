@@ -66,7 +66,9 @@ class AUV:
 		self.eta_1 = [	pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[0],
 				pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[1],
 				pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[2]]
-		self.eta_2 = [roll, pitch, yaw]
+		self.eta_2 = [	wrap2pi(roll), 
+				wrap2pi(pitch),
+				wrap2pi(yaw)]
 		self.ni_1 = [vx, vy, vz]
 		
 	def task_error(self, references):
@@ -80,10 +82,6 @@ class AUV:
 			error = math.sqrt(	(references.pos.x - self.eta_1[0])**2 + 	
 						(references.pos.y - self.eta_1[1])**2 + 
 						(references.pos.z - self.eta_1[2])**2)
-		if self.task_seq[self.task_index] == 'YAW' or self.task_seq[self.task_index] == 'PITCH' :
-			print("%s error: %s deg" % (self.task_seq[self.task_index], int(round(math.degrees(error)))))
-		else:
-			print("%s error: %s m" % (self.task_seq[self.task_index], round(error, 2)))
 		return error							
 
 

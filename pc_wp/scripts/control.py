@@ -5,7 +5,7 @@ import numpy as np
 import pymap3d as pm
 import time
 from pc_wp.msg import References, State, Odom, tau
-from utils import wrap2pi, isNone, ned2body, projection, get_waypoint
+from utils import wrap2pi, isNone, ned2body, projection, get_waypoint, print_info
 
 task = None
 
@@ -50,9 +50,9 @@ def odom_callback(odom):
 	eta_1 = [	pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[0], 
 			pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[1],
 			pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[2]]
-	eta_2 = [	odom.rpy.x,
-			odom.rpy.y,
-			odom.rpy.z]
+	eta_2 = [	wrap2pi(odom.rpy.x),
+			wrap2pi(odom.rpy.y),
+			wrap2pi(odom.rpy.z)]
 	ni_1 = [	odom.lin_vel.x,
 			odom.lin_vel.y,
 			odom.lin_vel.z]	
@@ -90,16 +90,19 @@ def state_callback(state, pub):
 	if state.task == 'YAW':
 		if not stop_set_reference[5]:
 			error_yaw = wrap2pi(set_reference(eta_2_init[2], eta_2[2], references.rpy.z, 'YAW', 5) - eta_2[2])
+			time_start_ref = time.time()
 		else:
 			error_yaw = references.rpy.z - eta_2[2]
 	elif state.task == 'PITCH':
 		if not stop_set_reference[4]:
 			error_pitch = wrap2pi(set_reference(eta_2_init[1], eta_2[1], references.rpy.y, 'PITCH', 4) - eta_2[1])
+			time_start_ref = time.time()
 		else:
 			error_pitch = wrap2pi(references.rpy.y - eta_2[1])
 	elif state.task == 'HEAVE':
 		if not stop_set_reference[2]:
 			error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z, 'HEAVE', 2) - eta_1[2]
+			time_start_ref = time.time()
 		else:
 			error_z_ned = references.pos.z - eta_1[2]
 	elif state.task == 'APPROACH':
@@ -115,6 +118,7 @@ def state_callback(state, pub):
 			error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z, 'APPROACH', 2) - eta_1[2]
 		else:
 			error_z_ned = references.pos.z - eta_1[2]
+		time_start_ref = time.time()
 		error_pitch = wrap2pi(references.rpy.y - eta_2[1])
 	elif state.task == 'SURGE':
 		if references.lin_vel.x == surge_reference_low and not reset_time:
@@ -124,6 +128,7 @@ def state_callback(state, pub):
 			stop_set_reference[0] = False
 		if not stop_set_reference[0]:
 			error_ni_1_x = set_reference(ni_1_init[0], ni_1[0], references.lin_vel.x, 'SURGE', 0) - ni_1[0]
+			time_start_ref = time.time()
 		else:
 			error_ni_1_x = references.lin_vel.x - ni_1[0]
 		waypoint = get_waypoint(state.wp_index)
@@ -134,15 +139,6 @@ def state_callback(state, pub):
 	error_xyz_ned = [error_x_ned, error_y_ned, error_z_ned]
 	[error_x_body, error_y_body, error_z_body] = ned2body(error_xyz_ned, eta_2)
 	error_pose_body = np.array([error_x_body, error_y_body, error_z_body, error_roll, error_pitch, error_yaw])
-	print("eta_1: [%s, %s, %s], eta_2: [%s, %s, %s]" % (	round(eta_1[0], 2),
-								round(eta_1[1], 2),
-								round(eta_1[2], 2),
-								round(math.degrees(eta_2[0]), 1),
-								round(math.degrees(eta_2[1]), 1),
-								round(math.degrees(eta_2[2]), 1)))
-	print("ni_1: [%s, %s, %s]" % (	round(ni_1[0], 2),
-					round(ni_1[1], 2),
-					round(ni_1[2], 2)))
 	u = pid(error_pose_body, error_ni_1_x)
 	control = tau()
 	control.tau.force.x = np.float64(u[0]).item()
@@ -152,12 +148,7 @@ def state_callback(state, pub):
  	control.tau.torque.y = np.float64(u[4]).item()
 	control.tau.torque.z = np.float64(u[5]).item()
 	pub.publish(control)
-	print("force: [%s, %s, %s]\ntorque: [%s, %s, %s]" % (	round(control.tau.force.x, 2),
-								round(control.tau.force.y, 2),
-								round(control.tau.force.z, 2),
-								round(control.tau.torque.x, 2),
-								round(control.tau.torque.y, 2),
-								round(control.tau.torque.z, 2)))
+	print_info(references, state, eta_1, eta_2, ni_1, control)
 
 def set_reference(init_value, actual_value, final_value, task_value, index):				# set time varying reference signal
 	global time_start_ref, stop_set_reference
@@ -166,7 +157,6 @@ def set_reference(init_value, actual_value, final_value, task_value, index):				
 	while not time_start_ref:
 		pass
 	dt = time.time() - time_start_ref
-	time_start_ref = time.time()
 	if task_value == 'PITCH' or task_value == 'YAW':
 		sign = np.sign(wrap2pi(final_value - actual_value))
 	else:
@@ -177,6 +167,12 @@ def set_reference(init_value, actual_value, final_value, task_value, index):				
 		return final_value
 	else:
 		return reference
+
+def isOver(reference, final, sign):
+	if (final_value > 0 and reference > 0 and sign == 1 and reference > final_value) or (final_value > 0 and reference > 0 and sign == -1 and reference < final_value) or (final_value < 0 and reference < 0 and sign == 1 and reference > final_value) or (final_value < 0 and reference < 0 and sign == -1 and reference < final_value):
+		return True
+	else:
+		return False
 
 def pid(error_pose_body, error_ni_1_x):
 	global int_error, UP_SAT, DOWN_SAT, gains_P, gains_I, time_start_pid

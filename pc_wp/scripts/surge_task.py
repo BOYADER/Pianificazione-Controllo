@@ -5,7 +5,7 @@ import numpy as np
 import pymap3d as pm
 from classes.Waypoint import Waypoint
 from pc_wp.msg import References, State, Odom
-from utils import get_waypoint, clear, isNone
+from utils import get_waypoint, clear, isNone, wrap2pi
 
 task = None
 waypoint = None
@@ -28,9 +28,9 @@ def odom_callback(odom):
 		eta_1 = [	pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[0], 
 				pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[1],
 				pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[2]]
-		eta_2 = [	odom.rpy.x,
-				odom.rpy.y,
-				odom.rpy.z]
+		eta_2 = [	wrap2pi(odom.rpy.x),
+				wrap2pi(odom.rpy.y),
+				wrap2pi(odom.rpy.z)]
 		if not eta_1_init:
 			eta_1_init = eta_1
 		if not eta_2_init:
@@ -59,7 +59,6 @@ def state_callback(state, pub):
 			else:
 				references.lin_vel.x = surge_reference_high
 			pub.publish(references)
-			print("SURGE reference: %s m/s" % (round(references.lin_vel.x, 2)))
 	elif state.task != 'SURGE':
 		task = state.task
 		if not isNone([eta_1_init, eta_2_init]):

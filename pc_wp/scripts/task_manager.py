@@ -3,7 +3,7 @@ import rospy
 import math
 from classes.AUV import AUV
 from classes.Waypoint import Waypoint
-from utils import get_waypoint, print_adv
+from utils import get_waypoint, print_end_mission
 from pc_wp.msg import Odom, References, State
 	
 auv = None
@@ -33,7 +33,6 @@ def odom_callback(odom, pub):
 		auv.update(	odom.lld.x, odom.lld.y, odom.lld.z,		# update eta_1, eta_2, ni_1
 				odom.rpy.x, odom.rpy.y, odom.rpy.z,
 				odom.lin_vel.x, odom.lin_vel.y, odom.lin_vel.z)	
-		print_adv("WAYPOINT n. %s" % (auv.wp_index + 1))
 		if references is not None:	
 			task_error = auv.task_error(references)				# task_error computation		
 			if abs(task_error) <= auv.tolerance:				# check if current task is completed or not
@@ -44,7 +43,6 @@ def odom_callback(odom, pub):
 					auv.waypoint = get_waypoint(auv.wp_index)	# next waypoint
 					if not auv.waypoint:
 						end_mission = True
-						print_adv("MISSION ENDED")
 					else:						
 						auv.print_waypoint()					
 						pitch_des = auv.pitch_desired()		# compute pitch_des to decide the strategy
@@ -54,13 +52,14 @@ def odom_callback(odom, pub):
 					references = None
 					auv.task_index = auv.task_index + 1		# next task
 					auv.set_tolerance()				# update task tolerance
-	if not end_mission:	
+	if not end_mission:
 		state = State()							# prepare msg State to task_nodes
 		state.strategy = auv.strategy
 		state.task = auv.task_seq[auv.task_index]
 		state.wp_index = auv.wp_index
 		pub.publish(state)						# msg published to topic
-
+	if end_mission:					
+		print_end_mission()
 def ref_callback(ref):
 	global references, auv
 	references = ref

@@ -5,7 +5,7 @@ import numpy as np
 import pymap3d as pm
 from classes.Waypoint import Waypoint
 from pc_wp.msg import References, State, Odom
-from utils import get_waypoint, clear, isNone
+from utils import get_waypoint, clear, isNone, wrap2pi
 
 task = None
 waypoint = None
@@ -24,9 +24,9 @@ def odom_callback(odom):
 		eta_1 = [	pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[0], 
 				pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[1],
 				pm.geodetic2ned(odom.lld.x, odom.lld.y, -odom.lld.z, lld_ned['latitude'], lld_ned['longitude'], -lld_ned['depth'])[2]]
-		eta_2 = [	odom.rpy.x,
-				odom.rpy.y,
-				odom.rpy.z]
+		eta_2 = [	wrap2pi(odom.rpy.x),
+				wrap2pi(odom.rpy.y),
+				wrap2pi(odom.rpy.z)]
 		if not eta_1_init:
 			eta_1_init = eta_1
 		if not eta_2_init:
@@ -46,13 +46,12 @@ def state_callback(state, pub):
 			references.pos.z = eta_1_init[2]
 			references.rpy.x = eta_2_init[0] 
 			if state.strategy == 1:
-				references.rpy.y = np.arctan2(	waypoint.eta_1[2] - eta_1[2],
+				references.rpy.y = -np.arctan2(	waypoint.eta_1[2] - eta_1[2],
           							math.sqrt((waypoint.eta_1[0] - eta_1[0])**2 + (waypoint.eta_1[1] - eta_1[1])**2))
 			elif state.strategy == 2:
 				references.rpy.y = 0
 			references.rpy.z = eta_2_init[2]
 			pub.publish(references)
-			print("PITCH reference: %s deg" % (int(round(math.degrees(references.rpy.y)))))
 	elif state.task != 'PITCH':
 		task = state.task
 		if not isNone([eta_1_init, eta_2_init]):
