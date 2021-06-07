@@ -55,11 +55,16 @@ class AUV:
 		print("strategy: %d, task_seq: %s" % (self.strategy, self.task_seq))
 	
 	def set_tolerance(self):			# set task tolerance error
-		string_param = 'task_tolerance_list/' + self.task_seq[self.task_index]
-		if self.task_seq[self.task_index] == 'YAW' or self.task_seq[self.task_index] == 'PITCH':
-			self.tolerance = math.radians(rospy.get_param(string_param))
-		else:
+		if self.wp_index == len(rospy.get_param('waypoint_list')) and self.task_seq[self.task_index] == 'APPROACH':
+			string_param = 'task_tolerance_list/END_MISSION'
 			self.tolerance = rospy.get_param(string_param)
+		else: 
+			string_param = 'task_tolerance_list/' + self.task_seq[self.task_index]
+			if self.task_seq[self.task_index] == 'YAW' or self.task_seq[self.task_index] == 'PITCH':
+				self.tolerance = math.radians(rospy.get_param(string_param))
+			else:
+				self.tolerance = rospy.get_param(string_param)
+
 
 	def update(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz):
 		self.lld = [latitude, longitude, depth]

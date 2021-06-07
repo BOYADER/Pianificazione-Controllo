@@ -1,9 +1,9 @@
 task_velocity_reference_list:
-  YAW:            0.2                  # [rad/s]
-  PITCH:          0.2                  # [rad/s]
-  HEAVE:            5                  # [m/s]
-  SURGE:          0.5                  # [m/s]
-  APPROACH:         1                  # [m/s] #0.2
+  YAW:            0.1                  # [rad/s]
+  PITCH:          0.1                  # [rad/s]
+  HEAVE:          0.5                  # [m/s]
+  SURGE:          0.1                  # [m/s]
+  APPROACH:       0.1                  # [m/s]
 
 references:
   SURGE:

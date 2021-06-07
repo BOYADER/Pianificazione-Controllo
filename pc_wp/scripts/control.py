@@ -5,7 +5,7 @@ import numpy as np
 import pymap3d as pm
 import time
 from pc_wp.msg import References, State, Odom, tau
-from utils import wrap2pi, isNone, ned2body, projection, get_waypoint, print_info
+from utils import wrap2pi, isNone, ned2body, projection, get_waypoint, print_info, isOverSetPoint
 
 task = None
 
@@ -17,7 +17,7 @@ eta_1_init = None
 eta_2_init = None
 ni_1_init = None
 
-gains_P = []	
+gains_P = []
 gains_I = []
 
 UP_SAT = rospy.get_param('UP_SAT')
@@ -30,13 +30,6 @@ time_start_pid = time.time()
 reset_time = False
 
 references = None
-
-stop_set_reference = [	False,		# x
-			False,		# y
-			False,		# z
-			False,		# roll
-			False,		# pitch
-			False]		# yaw
 
 QUEUE_SIZE = rospy.get_param('QUEUE_SIZE')
 
@@ -58,7 +51,7 @@ def odom_callback(odom):
 			odom.lin_vel.z]	
 
 def state_callback(state, pub):
-	global task, eta_1, eta_2, ni_1, eta_1_init, eta_2_init, ni_1_init, time_start_ref, references, tolerance, surge_reference_high, surge_reference_low, reset_time, stop_set_reference, int_error, gains_P, gains_I
+	global task, eta_1, eta_2, ni_1, eta_1_init, eta_2_init, ni_1_init, time_start_ref, references, tolerance, surge_reference_high, surge_reference_low, reset_time, int_error, gains_P, gains_I
 	if not task or task != state.task:
 		references = None
 		gains_P = rospy.get_param('gains_P/' + state.task)
@@ -71,12 +64,6 @@ def state_callback(state, pub):
 		eta_2_init = eta_2	
 		ni_1_init = ni_1
 		reset_time = False
-		stop_set_reference = [	False,		
-					False,
-					False,		
-					False,	
-					False,
-					False]
 	task = state.task
 	while isNone([eta_1_init, eta_2_init, references]):
 		pass
@@ -88,49 +75,21 @@ def state_callback(state, pub):
 	error_yaw = wrap2pi(references.rpy.z - eta_2[2])
 	error_ni_1_x = None
 	if state.task == 'YAW':
-		if not stop_set_reference[5]:
-			error_yaw = wrap2pi(set_reference(eta_2_init[2], eta_2[2], references.rpy.z, 'YAW', 5) - eta_2[2])
-			time_start_ref = time.time()
-		else:
-			error_yaw = references.rpy.z - eta_2[2]
+		error_yaw = wrap2pi(set_reference(eta_2_init[2], eta_2[2], references.rpy.z) - eta_2[2])
 	elif state.task == 'PITCH':
-		if not stop_set_reference[4]:
-			error_pitch = wrap2pi(set_reference(eta_2_init[1], eta_2[1], references.rpy.y, 'PITCH', 4) - eta_2[1])
-			time_start_ref = time.time()
-		else:
-			error_pitch = wrap2pi(references.rpy.y - eta_2[1])
+		error_pitch = wrap2pi(set_reference(eta_2_init[1], eta_2[1], references.rpy.y) - eta_2[1])
 	elif state.task == 'HEAVE':
-		if not stop_set_reference[2]:
-			error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z, 'HEAVE', 2) - eta_1[2]
-			time_start_ref = time.time()
-		else:
-			error_z_ned = references.pos.z - eta_1[2]
+		error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z) - eta_1[2]
 	elif state.task == 'APPROACH':
-		if not stop_set_reference[0]:
-			error_x_ned = set_reference(eta_1_init[0], eta_1[0], references.pos.x, 'APPROACH', 0) - eta_1[0]
-		else:
-			error_x_ned = references.pos.x - eta_1[0]
-		if not stop_set_reference[1]:
-			error_y_ned = set_reference(eta_1_init[1], eta_1[1], references.pos.y, 'APPROACH', 1) - eta_1[1]
-		else:
-			error_y_ned = references.pos.y - eta_1[1]
-		if not stop_set_reference[2]:
-			error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z, 'APPROACH', 2) - eta_1[2]
-		else:
-			error_z_ned = references.pos.z - eta_1[2]
-		time_start_ref = time.time()
-		error_pitch = wrap2pi(references.rpy.y - eta_2[1])
+		error_x_ned = set_reference(eta_1_init[0], eta_1[0], references.pos.x) - eta_1[0]
+		error_y_ned = set_reference(eta_1_init[1], eta_1[1], references.pos.y) - eta_1[1]
+		error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z) - eta_1[2]
 	elif state.task == 'SURGE':
 		if references.lin_vel.x == surge_reference_low and not reset_time:
 			time_start_ref = time.time()
 			ni_1_init = ni_1
 			reset_time = True
-			stop_set_reference[0] = False
-		if not stop_set_reference[0]:
-			error_ni_1_x = set_reference(ni_1_init[0], ni_1[0], references.lin_vel.x, 'SURGE', 0) - ni_1[0]
-			time_start_ref = time.time()
-		else:
-			error_ni_1_x = references.lin_vel.x - ni_1[0]
+		error_ni_1_x = set_reference(ni_1_init[0], ni_1[0], references.lin_vel.x) - ni_1[0]
 		waypoint = get_waypoint(state.wp_index)
 		u = np.array(eta_1) - np.array(eta_1_init)
 		v = np.array(waypoint.eta_1) - np.array(eta_1_init)
@@ -149,30 +108,24 @@ def state_callback(state, pub):
 	control.tau.torque.z = np.float64(u[5]).item()
 	pub.publish(control)
 	print_info(references, state, eta_1, eta_2, ni_1, control)
+	
 
-def set_reference(init_value, actual_value, final_value, task_value, index):				# set time varying reference signal
-	global time_start_ref, stop_set_reference
-	string_param = 'task_velocity_reference_list/' + task_value
+def set_reference(init_value, actual_value, final_value):				# set time varying reference signal
+	global task, time_start_ref
+	string_param = 'task_velocity_reference_list/' + task
 	velocity_reference = rospy.get_param(string_param)
 	while not time_start_ref:
 		pass
 	dt = time.time() - time_start_ref
-	if task_value == 'PITCH' or task_value == 'YAW':
+	if task == 'PITCH' or task == 'YAW':
 		sign = np.sign(wrap2pi(final_value - actual_value))
 	else:
 		sign = np.sign(final_value - actual_value)
-	reference = actual_value + sign * velocity_reference * dt 
-	if (final_value > 0 and reference > 0 and sign == 1 and reference > final_value) or (final_value > 0 and reference > 0 and sign == -1 and reference < final_value) or (final_value < 0 and reference < 0 and sign == 1 and reference > final_value) or (final_value < 0 and reference < 0 and sign == -1 and reference < final_value):   
-		stop_set_reference[index] = True
+	reference = init_value + sign * velocity_reference * dt
+	if isOverSetPoint(final_value, reference, sign) or isOverSetPoint(final_value, actual_value, sign):
 		return final_value
 	else:
 		return reference
-
-def isOver(reference, final, sign):
-	if (final_value > 0 and reference > 0 and sign == 1 and reference > final_value) or (final_value > 0 and reference > 0 and sign == -1 and reference < final_value) or (final_value < 0 and reference < 0 and sign == 1 and reference > final_value) or (final_value < 0 and reference < 0 and sign == -1 and reference < final_value):
-		return True
-	else:
-		return False
 
 def pid(error_pose_body, error_ni_1_x):
 	global int_error, UP_SAT, DOWN_SAT, gains_P, gains_I, time_start_pid

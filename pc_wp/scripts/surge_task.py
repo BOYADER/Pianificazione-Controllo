@@ -37,7 +37,7 @@ def odom_callback(odom):
 			eta_2_init = eta_2
 		
 def state_callback(state, pub):
-	global task, eta_1, eta_2, eta_1_init, eta_2_init, distance_tolerance, final_inc, final_dec
+	global task, eta_1, eta_2, eta_1_init, eta_2_init, distance_tolerance, surge_reference_high, surge_reference_low
 	if state.task == 'SURGE':
 		task = state.task
 		while isNone([eta_1, eta_2, eta_1_init, eta_2_init]):

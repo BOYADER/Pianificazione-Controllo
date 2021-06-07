@@ -33,7 +33,7 @@ def odom_callback(odom):
 			eta_2_init = eta_2
 			
 def state_callback(state, pub):
-	global task, eta_1, eta_2, eta_1_init, eta_2_init
+	global task, eta_1, eta_2, eta_1_init, eta_2_init, critical_depth
 	if state.task == 'APPROACH':
 		task = state.task
 		while isNone([eta_1, eta_2, eta_1_init, eta_2_init]):

@@ -58,14 +58,24 @@ def projection(u, v):
 	proj = (np.dot(u, v)/np.linalg.norm(v)**2)*v
 	return proj
 
+def isOverSetPoint(set_point, actual_value, sign):
+	if (set_point > 0 and actual_value > 0 and sign == 1 and actual_value > set_point) or (set_point > 0 and actual_value > 0 and sign == -1 and actual_value < set_point) or (set_point < 0 and actual_value < 0 and sign == 1 and actual_value > set_point) or (set_point < 0 and actual_value < 0 and sign == -1 and actual_value < set_point):   
+		return True
+	else:
+		return False
+
 def print_info(references, state, eta_1, eta_2, ni_1, control):
+	if state.wp_index == len(rospy.get_param('waypoint_list')):
+		string_adv = "Back to NED origin"
+	else:
+		string_adv = "Waypoint n. " + str(state.wp_index + 1)
 	print("#############################################################################################################\n")
-	print("                                                Waypoint n. %s                                               \n" %  str(state.wp_index + 1))	
+	print("                                                %s                                                           \n" %  string_adv)	
 	print("#############################################################################################################")
 	print("-------------------------------------------------------------------------------------------------------------")	
 	string_param = 'task_seq_list/ts' + str(state.strategy)
 	task_seq = rospy.get_param(string_param)
-	string_print = "                                   "
+	string_print = "                                    "
 	for x in range(0, len(task_seq)):
 		if task_seq[x] == state.task:
 			task_colored = colored(state.task, 'green', attrs=['bold'])
@@ -82,13 +92,16 @@ def print_info(references, state, eta_1, eta_2, ni_1, control):
 	print("  eta_1.y			%s				%s				[m]         " % (round(eta_1[1], 2), round(references.pos.y, 2)))
 	print("  eta_1.z			%s				%s  				[m]         " % (round(eta_1[2], 2), round(references.pos.z, 2)))
 	print("-------------------------------------------------------------------------------------------------------------")
-	print("  eta_2.x			%s				%s				[deg]       " % (round(math.degrees(eta_2[0]), 1), round(math.degrees(references.rpy.x), 1)))
+	print("  eta_2.x			%s								[deg]       " % (round(math.degrees(eta_2[0]), 1)))
 	print("  eta_2.y			%s				%s				[deg]       " % (round(math.degrees(eta_2[1]), 1), round(math.degrees(references.rpy.y), 1)))
 	print("  eta_2.z			%s				%s				[deg]       " % (round(math.degrees(eta_2[2]), 1), round(math.degrees(references.rpy.z), 1)))
 	print("-------------------------------------------------------------------------------------------------------------")
-	print("  ni_1.x 			%s				%s				[m/s]       " % (round(ni_1[0], 2), round(references.lin_vel.x, 2)))
-	print("  ni_1.y 			%s				%s				[m/s]       " % (round(ni_1[1], 2), round(references.lin_vel.y, 2)))
-	print("  ni_1.z 			%s				%s				[m/s]       " % (round(ni_1[2], 2), round(references.lin_vel.z, 2)))
+	if state.task != 'SURGE':
+		print("  ni_1.x 			%s								[m/s]       " % (round(ni_1[0], 2)))
+	else:
+		print("  ni_1.x 			%s				%s				[m/s]       " % (round(ni_1[0], 2), round(references.lin_vel.x, 2)))
+	print("  ni_1.y 			%s								[m/s]       " % (round(ni_1[1], 2)))
+	print("  ni_1.z 			%s								[m/s]       " % (round(ni_1[2], 2)))
 	print("-------------------------------------------------------------------------------------------------------------")
 	print("  force.x			%s								[N]	    " % round(control.tau.force.x, 2))
 	print("  force.y			%s								[N]	    " % round(control.tau.force.y, 2))
