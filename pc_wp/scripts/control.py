@@ -92,10 +92,7 @@ def state_callback(state, pub):
 		else:
 			error_yaw = references.rpy.z - eta_2[2]
 	elif state.task == 'PITCH':
-		if not stop_set_reference[4]:
-			error_pitch = wrap2pi(set_reference(eta_2_init[1], eta_2[1], references.rpy.y, 4, 'PITCH') - eta_2[1])
-		else:	
-			error_pitch = references.rpy.y - eta_2[1]
+		error_pitch = references.rpy.y - eta_2[1]
 	elif state.task == 'HEAVE':
 		if not stop_set_reference[2]:
 			error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z, 2, 'HEAVE') - eta_1[2]
@@ -114,10 +111,7 @@ def state_callback(state, pub):
 			error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z, 2, 'APPROACH') - eta_1[2]
 		else:
 			error_z_ned = references.pos.z - eta_1[2]
-		if not stop_set_reference[4]:
-			error_pitch = wrap2pi(set_reference(eta_2_init[1], eta_2[1], references.rpy.y, 4, 'PITCH') - eta_2[1])
-		else:	
-			error_pitch = references.rpy.y - eta_2[1]
+		error_pitch = references.rpy.y - eta_2[1]
 	elif state.task == 'SURGE':
 		if references.lin_vel.x == surge_reference_low and not reset_time:
 			time_start_ref = time.time()
