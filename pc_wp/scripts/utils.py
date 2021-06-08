@@ -59,7 +59,7 @@ def projection(u, v):
 	return proj
 
 def isOverSetPoint(set_point, actual_value, sign):
-	if (set_point >= 0 and actual_value > 0 and sign == 1 and actual_value > set_point) or (set_point >= 0 and actual_value > 0 and sign == -1 and actual_value < set_point) or (set_point <= 0 and actual_value < 0 and sign == 1 and actual_value > set_point) or (set_point <= 0 and actual_value < 0 and sign == -1 and actual_value < set_point):   
+	if (set_point >= 0 and actual_value >= 0 and sign == 1 and actual_value >= set_point) or (set_point >= 0 and actual_value >= 0 and sign == -1 and actual_value <= set_point) or (set_point <= 0 and actual_value <= 0 and sign == 1 and actual_value >= set_point) or (set_point <= 0 and actual_value <= 0 and sign == -1 and actual_value <= set_point):   
 		return True
 	else:
 		return False

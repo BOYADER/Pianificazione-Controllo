@@ -7,6 +7,7 @@
 	<rosparam file="$(find pc_wp)/config/references.yaml" />
 
 	<node name="EKF" pkg ="nav_pkg" type="EKF"/>
+	<node name="performance_analysis" pkg="nav_pkg" type="performance_analysis"/>
 
 	<rosparam file = "$(find modellazione)/config/constant.yaml"/>
 	<node name ="model" pkg="modellazione" type="model"/>
@@ -25,9 +26,11 @@
 	<node pkg="pc_wp" type="task_manager.py" name="task_manager" output="screen"/>
 
 	<!--<node name="plot_tau" pkg="rqt_plot" type="rqt_plot" args="/tau/tau/force /tau/tau/torque"/>
-	<node name="plot_pos" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_1"/>
-	<node name="plot_rpy" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_2"/>
-	<node name="plot_ni" pkg="rqt_plot" type="rqt_plot" args="/state_real/ni_1"/>
-	<node name="plot_acc" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_1_dot_dot"/>
-	<node name="plot_rpy" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_2/z"/>-->
+	<node name="plot_pos" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_1 /error/pos"/>
+	<node name="plot_rpy" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_2 /odom/rpy"/>
+	<node name="rpy_plot" pkg="rqt_plot" type="rqt_plot" args="/error/rpy"/>
+	<node name="pos_plot" pkg="rqt_plot" type="rqt_plot" args="/error/pos"/>
+	<node name="vel_plot" pkg="rqt_plot" type="rqt_plot" args="/error/lin_vel"/>
+	<node name="MSE_plot" pkg="rqt_plot" type="rqt_plot" args="/error/MSE"/>-->
+	<node name="plot_ni" pkg="rqt_plot" type="rqt_plot" args="/state_real/ni_1 /odom/lin_vel"/>
 </launch>

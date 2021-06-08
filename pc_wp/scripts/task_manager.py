@@ -60,6 +60,7 @@ def odom_callback(odom, pub):
 		pub.publish(state)						# msg published to topic
 	if end_mission:					
 		print_end_mission()
+
 def ref_callback(ref):
 	global references, auv
 	references = ref
