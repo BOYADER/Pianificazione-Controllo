@@ -49,11 +49,7 @@ def state_callback(state, pub):
 			references.pos.y = waypoint.eta_1[1]
 			references.pos.z = waypoint.eta_1[2]
 			references.rpy.x = eta_2_init[0]
-			if state.strategy == 1:
-				references.rpy.y = -np.arctan2(	waypoint.eta_1[2] - eta_1[2],
-          							math.sqrt((waypoint.eta_1[0] - eta_1[0])**2 + (waypoint.eta_1[1] - eta_1[1])**2))
-			elif state.strategy == 2:
-				references.rpy.y = 0
+			references.rpy.y = eta_2_init[1]
 			references.rpy.z = eta_2_init[2]
 			distance = math.sqrt(	(references.pos.x - eta_1[0])**2 + 	
 						(references.pos.y - eta_1[1])**2 + 
