@@ -31,11 +31,17 @@ reset_time = False
 
 references = None
 
+stop_set_reference = [	False,
+			False,
+			False,
+			False,
+			False,
+			False]
+
 QUEUE_SIZE = rospy.get_param('QUEUE_SIZE')
 
 surge_reference_high = rospy.get_param('references/SURGE/high')
 surge_reference_low = rospy.get_param('references/SURGE/low')
-tolerance = rospy.get_param('references/SURGE/tolerance')
 
 def odom_callback(odom):
 	global eta_1, eta_2, ni_1
@@ -51,12 +57,18 @@ def odom_callback(odom):
 			odom.lin_vel.z]	
 
 def state_callback(state, pub):
-	global task, eta_1, eta_2, ni_1, eta_1_init, eta_2_init, ni_1_init, time_start_ref, references, tolerance, surge_reference_high, surge_reference_low, reset_time, int_error, gains_P, gains_I
+	global task, eta_1, eta_2, ni_1, eta_1_init, eta_2_init, ni_1_init, time_start_ref, references, surge_reference_high, surge_reference_low, reset_time, int_error, gains_P, gains_I, stop_set_reference
 	if not task or task != state.task:
 		references = None
 		gains_P = rospy.get_param('gains_P/' + state.task)
 		gains_I = rospy.get_param('gains_I/' + state.task)
 		int_error = np.array([[0, 0, 0, 0, 0, 0]]).T
+		stop_set_reference = [	False,
+					False,
+					False,
+					False,
+					False,
+					False]
 		time_start_ref = time.time()
 		while isNone([eta_1, eta_2, ni_1]):
 			pass
@@ -75,21 +87,47 @@ def state_callback(state, pub):
 	error_yaw = wrap2pi(references.rpy.z - eta_2[2])
 	error_ni_1_x = None
 	if state.task == 'YAW':
-		error_yaw = wrap2pi(set_reference(eta_2_init[2], eta_2[2], references.rpy.z) - eta_2[2])
+		if not stop_set_reference[5]:
+			error_yaw = wrap2pi(set_reference(eta_2_init[2], eta_2[2], references.rpy.z, 5, 'YAW') - eta_2[2])
+		else:
+			error_yaw = references.rpy.z - eta_2[2]
 	elif state.task == 'PITCH':
-		error_pitch = wrap2pi(set_reference(eta_2_init[1], eta_2[1], references.rpy.y) - eta_2[1])
+		if not stop_set_reference[4]:
+			error_pitch = wrap2pi(set_reference(eta_2_init[1], eta_2[1], references.rpy.y, 4, 'PITCH') - eta_2[1])
+		else:	
+			error_pitch = references.rpy.y - eta_2[1]
 	elif state.task == 'HEAVE':
-		error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z) - eta_1[2]
+		if not stop_set_reference[2]:
+			error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z, 2, 'HEAVE') - eta_1[2]
+		else:
+			error_z_ned = references.pos.z - eta_1[2]
 	elif state.task == 'APPROACH':
-		error_x_ned = set_reference(eta_1_init[0], eta_1[0], references.pos.x) - eta_1[0]
-		error_y_ned = set_reference(eta_1_init[1], eta_1[1], references.pos.y) - eta_1[1]
-		error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z) - eta_1[2]
+		if not stop_set_reference[0]:
+			error_x_ned = set_reference(eta_1_init[0], eta_1[0], references.pos.x, 0, 'APPROACH') - eta_1[0]
+		else:
+			error_x_ned = references.pos.x - eta_1[0]
+		if not stop_set_reference[1]:		
+			error_y_ned = set_reference(eta_1_init[1], eta_1[1], references.pos.y, 1, 'APPROACH') - eta_1[1]
+		else:
+			error_y_ned = references.pos.y - eta_1[1]
+		if not stop_set_reference[2]:		
+			error_z_ned = set_reference(eta_1_init[2], eta_1[2], references.pos.z, 2, 'APPROACH') - eta_1[2]
+		else:
+			error_z_ned = references.pos.z - eta_1[2]
+		if not stop_set_reference[4]:
+			error_pitch = wrap2pi(set_reference(eta_2_init[1], eta_2[1], references.rpy.y, 4, 'PITCH') - eta_2[1])
+		else:	
+			error_pitch = references.rpy.y - eta_2[1]
 	elif state.task == 'SURGE':
 		if references.lin_vel.x == surge_reference_low and not reset_time:
 			time_start_ref = time.time()
 			ni_1_init = ni_1
 			reset_time = True
-		error_ni_1_x = set_reference(ni_1_init[0], ni_1[0], references.lin_vel.x) - ni_1[0]
+			stop_set_reference[0] = False
+		if not stop_set_reference[0]:
+			error_ni_1_x = set_reference(ni_1_init[0], ni_1[0], references.lin_vel.x, 0, 'SURGE') - ni_1[0]
+		else:
+			error_ni_1_x = references.lin_vel.x - ni_1[0]
 		waypoint = get_waypoint(state.wp_index)
 		u = np.array(eta_1) - np.array(eta_1_init)
 		v = np.array(waypoint.eta_1) - np.array(eta_1_init)
@@ -110,19 +148,20 @@ def state_callback(state, pub):
 	print_info(references, state, eta_1, eta_2, ni_1, control)
 	
 
-def set_reference(init_value, actual_value, final_value):				# set time varying reference signal
-	global task, time_start_ref
-	string_param = 'task_velocity_reference_list/' + task
+def set_reference(init_value, actual_value, final_value, index, task_value):				# set time varying reference signal
+	global time_start_ref, int_error, stop_set_reference
+	string_param = 'task_velocity_reference_list/' + task_value
 	velocity_reference = rospy.get_param(string_param)
 	while not time_start_ref:
 		pass
 	dt = time.time() - time_start_ref
-	if task == 'PITCH' or task == 'YAW':
+	if task_value == 'PITCH' or task_value == 'YAW':
 		sign = np.sign(wrap2pi(final_value - actual_value))
 	else:
 		sign = np.sign(final_value - actual_value)
 	reference = init_value + sign * velocity_reference * dt
-	if isOverSetPoint(final_value, reference, sign) or isOverSetPoint(final_value, actual_value, sign):
+	if isOverSetPoint(final_value, reference, sign):
+		stop_set_reference[index] = True
 		return final_value
 	else:
 		return reference
