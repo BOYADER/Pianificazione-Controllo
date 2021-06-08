@@ -45,7 +45,7 @@ def state_callback(state, pub):
 			references.pos.y = eta_1_init[1]
 			references.pos.z = eta_1_init[2]		
 			references.rpy.x = eta_2_init[0]	
-			references.rpy.y = eta_2_init[1]
+			references.rpy.y = 0
 			references.rpy.z = np.arctan2(	waypoint.eta_1[1] - eta_1[1],
 							waypoint.eta_1[0] - eta_1[0])
 			pub.publish(references)
