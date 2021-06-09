@@ -31,30 +31,23 @@ class AUV:
 		self.wp_index = 0
 		self.tolerance = None
 				
-	def print_waypoint(self):
-		print("Waypoint n. %d, coords [NED]: [%s, %s, %s]" % (	self.wp_index + 1,
-									self.waypoint.eta_1[0],
-									self.waypoint.eta_1[1],
-									self.waypoint.eta_1[2]))
-			
-	def pitch_desired(self):			# compute pitch_des in order to decide the strategy
+	def pitch_desired(self):										# compute pitch_des in order to decide the strategy
 		pitch_des = -np.arctan2(	self.waypoint.eta_1[2] - self.eta_1[2],
 						math.sqrt((self.waypoint.eta_1[0] - self.eta_1[0])**2 + (self.waypoint.eta_1[1] - self.eta_1[1])**2))
-		print("pitch desired: %s" % int(round(math.degrees(pitch_des))))
 		return pitch_des
 	
-	def set_strategy(self, pitch_des):		# strategy and task_seq setting 
+	def set_strategy(self, pitch_des):									# strategy and task_seq setting 
 		critical_pitch = math.radians(rospy.get_param('critical_pitch'))
 		critical_depth = rospy.get_param('critical_depth')		
-		if (abs(pitch_des) < critical_pitch or abs(pitch_des) > (math.pi - critical_pitch)) and self.eta_1[2] > critical_depth:
+		if (	(abs(pitch_des) < critical_pitch or abs(pitch_des) > (math.pi - critical_pitch)) 	# pitch desider under critical_pitch
+			and self.eta_1[2] > critical_depth	):						# auv.eta_1.z over critical_depth
 			self.strategy = 1
 		else:
 			self.strategy = 2
 		string_param = 'task_seq_list/ts' + str(self.strategy)
 		self.task_seq = rospy.get_param(string_param)
-		print("strategy: %d, task_seq: %s" % (self.strategy, self.task_seq))
 	
-	def set_tolerance(self):			# set task tolerance error
+	def set_tolerance(self):										# set task tolerance error
 		if self.wp_index == len(rospy.get_param('waypoint_list')) and self.task_seq[self.task_index] == 'APPROACH':
 			string_param = 'task_tolerance_list/END_MISSION'
 			self.tolerance = rospy.get_param(string_param)
@@ -66,7 +59,7 @@ class AUV:
 				self.tolerance = rospy.get_param(string_param)
 
 
-	def update(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz):
+	def update(self, latitude, longitude, depth, roll, pitch, yaw, vx, vy, vz):				# update eta_1, eta_2, ni_1
 		self.lld = [latitude, longitude, depth]
 		self.eta_1 = [	pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[0],
 				pm.geodetic2ned(self.lld[0], self.lld[1], -self.lld[2], self.lld_ned[0], self.lld_ned[1], -self.lld_ned[2])[1],
@@ -76,7 +69,7 @@ class AUV:
 				wrap2pi(yaw)]
 		self.ni_1 = [vx, vy, vz]
 		
-	def task_error(self, references):
+	def task_error(self, references):									# compute current task error
 		if self.task_seq[self.task_index] == 'YAW':
 			error = wrap2pi(references.rpy.z - self.eta_2[2])
 		elif self.task_seq[self.task_index] == 'PITCH':

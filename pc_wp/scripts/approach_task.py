@@ -17,7 +17,7 @@ eta_2_init = None
 
 QUEUE_SIZE = rospy.get_param('QUEUE_SIZE')
 
-def odom_callback(odom):
+def odom_callback(odom):									# when node is active: eta_1, eta_2 update - setting of eta_1_init, eta_2_init
 	global task, eta_1, eta_2, eta_1_init, eta_2_init
 	if task == 'APPROACH':
 		lld_ned = rospy.get_param('ned_frame_origin')
@@ -34,24 +34,24 @@ def odom_callback(odom):
 			
 def state_callback(state, pub):
 	global task, eta_1, eta_2, eta_1_init, eta_2_init, critical_depth
-	if state.task == 'APPROACH':
-		task = state.task
-		while isNone([eta_1, eta_2, eta_1_init, eta_2_init]):
+	if state.task == 'APPROACH':								# this node is active
+		task = state.task	
+		while isNone([eta_1, eta_2, eta_1_init, eta_2_init]):				# wait until eta_1, eta_2, eta_1_init, eta_2_int are initialized
 			pass
-		waypoint = get_waypoint(state.wp_index)
+		waypoint = get_waypoint(state.wp_index)						# get next waypoint
 		if waypoint is not None:
-			references = References()
-			references.pos.x = waypoint.eta_1[0]
-			references.pos.y = waypoint.eta_1[1]
-			references.pos.z = waypoint.eta_1[2]	
-			references.rpy.x = eta_2_init[0]	
-			references.rpy.y = 0
-			references.rpy.z = eta_2_init[2]
-			pub.publish(references)
-	elif state.task != 'APPROACH':
+			references = References()						# prepare msg References to control and task_manager nodes
+			references.pos.x = waypoint.eta_1[0]					# set eta_1.x desired
+			references.pos.y = waypoint.eta_1[1]					# set eta_1.y desired
+			references.pos.z = waypoint.eta_1[2]					# set eta_1.z desired
+			references.rpy.x = eta_2_init[0]					# useless, roll not actuated
+			references.rpy.y = 0							# set pitch to 0
+			references.rpy.z = eta_2_init[2]					# maintain the same yaw as it was at the start of the task	
+			pub.publish(references)							# msg published to topic
+	elif state.task != 'APPROACH':								# this node is inactive
 		task = state.task
 		if not isNone([eta_1_init, eta_2_init]):
-			[eta_1_init, eta_2_init] = clear([eta_1_init, eta_2_init])
+			[eta_1_init, eta_2_init] = clear([eta_1_init, eta_2_init])		# clear init variables
 
 def approach_task():
 	global QUEUE_SIZE

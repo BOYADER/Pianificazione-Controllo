@@ -17,7 +17,7 @@ eta_2_init = None
 
 QUEUE_SIZE = rospy.get_param('QUEUE_SIZE')
 
-def odom_callback(odom):
+def odom_callback(odom):									# when node is active: eta_1, eta_2 update - setting of eta_1_init, eta_2_init
 	global task, eta_1, eta_2, eta_1_init, eta_2_init
 	if task == 'PITCH':
 		lld_ned = rospy.get_param('ned_frame_origin')
@@ -34,29 +34,29 @@ def odom_callback(odom):
 
 def state_callback(state, pub):
 	global task, eta_1, eta_2, eta_1_init, eta_2_init
-	if state.task == 'PITCH':
+	if state.task == 'PITCH':								# this node is active
 		task = state.task
-		while isNone([eta_1, eta_2, eta_1_init, eta_2_init]):
+		while isNone([eta_1, eta_2, eta_1_init, eta_2_init]):				# wait until eta_1, eta_2, eta_1_init, eta_2_int are initialized
 			pass
-		waypoint = get_waypoint(state.wp_index)
+		waypoint = get_waypoint(state.wp_index)						# get next waypoint
 		if waypoint is not None:
-			references = References()
-			references.pos.x = eta_1_init[0]
-			references.pos.y = eta_1_init[1]
-			references.pos.z = eta_1_init[2]
-			references.rpy.x = eta_2_init[0] 
-			if state.strategy == 1:
+			references = References()						# prepare msg References to control and task_manager nodes
+			references.pos.x = eta_1_init[0]					# maintain the same eta_1.x as it was at the start of the task 
+			references.pos.y = eta_1_init[1]					# maintain the same eta_1.y as it was at the start of the task 
+			references.pos.z = eta_1_init[2]					# maintain the same eta_1.z as it was at the start of the task 
+			references.rpy.x = eta_2_init[0] 					# useless, roll not actuated
+			if state.strategy == 1:							# set pitch desired
 				references.rpy.y = -np.arctan2(	waypoint.eta_1[2] - eta_1[2],
           							math.sqrt((waypoint.eta_1[0] - eta_1[0])**2 + (waypoint.eta_1[1] - eta_1[1])**2))
 			elif state.strategy == 2:
-				references.rpy.y = 0
-			references.rpy.z = eta_2_init[2]
-			pub.publish(references)
-	elif state.task != 'PITCH':
+				references.rpy.y = 0						# set pitch to 0
+			references.rpy.z = eta_2_init[2]					# maintain the same yaw as it was at the start of the task	
+			pub.publish(references)							# msg published to topic
+	elif state.task != 'PITCH':								# this node is inactive
 		task = state.task
-		if not isNone([eta_1_init, eta_2_init]):
-			[eta_1_init, eta_2_init] = clear([eta_1_init, eta_2_init])
-
+		if not isNone([eta_1_init, eta_2_init]):					
+			[eta_1_init, eta_2_init] = clear([eta_1_init, eta_2_init])		# clear init variables
+	
 def pitch_task():
 	global QUEUE_SIZE
 	rospy.init_node('pitch_task')
