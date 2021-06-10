@@ -183,12 +183,12 @@ def pid(error_pose_body, error_ni_1_x):
 	int_error = int_error + np.dot(pid_error, dt)
 	u = np.dot(np.diag(gains_P), pid_error) + np.dot(np.diag(gains_I), int_error)		# PI control input function
 	for i in range(0, len(u)):								# check control input amplitude
-		if u[i] > UP_SAT:
-			u[i] = UP_SAT
-			int_error = int_error - np.dot(pid_error, dt) 				# anti reset wind up
-		elif u[i] < DOWN_SAT:
-			u[i] = DOWN_SAT
-			int_error = int_error - np.dot(pid_error, dt)				# anti reset wind up
+		if u[i] > UP_SAT[i]:
+			u[i] = UP_SAT[i]
+			int_error[i] = int_error[i] - np.dot(pid_error, dt)[i] 				# anti reset wind up
+		elif u[i] < DOWN_SAT[i]:
+			u[i] = DOWN_SAT[i]
+			int_error[i] = int_error[i] - np.dot(pid_error, dt)[i]				# anti reset wind up
 	return u
 
 def ref_callback(ref):
