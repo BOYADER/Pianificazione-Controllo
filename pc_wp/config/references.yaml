@@ -1,7 +1,7 @@
 task_velocity_reference_list:
   YAW:            0.1                  # [rad/s]
   PITCH:          0.1                  # [rad/s] - not implemented in control.py
-  HEAVE:          0.3                  # [m/s]
+  HEAVE:          0.5                  # [m/s]
   SURGE:          0.05                 # [m/s]
   APPROACH:       0.1                  # [m/s]
 
