@@ -18,7 +18,7 @@ QUEUE_SIZE = rospy.get_param('QUEUE_SIZE')
 def odom_callback(odom, pub):
 	global auv, references, end_mission, sub
 	if not auv:
-		rospy.set_param('ned_frame_origin', {	'latitude': odom.lld.x, 		# set ned_origin on the utils.yaml file
+		rospy.set_param('ned_frame_origin', {	'latitude': odom.lld.x, 		# set ned_origin on the frame.yaml file
 							'longitude': odom.lld.y,
 							'depth': odom.lld.z})
 		auv = AUV(	odom.lld.x, odom.lld.y, odom.lld.z,				# create AUV object
