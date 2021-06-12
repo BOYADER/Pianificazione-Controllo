@@ -70,7 +70,9 @@ def state_callback(state, pub):
 		else:
 			gains_P = rospy.get_param('gains_P/' + state.task)			# get proportional gains of the current task
 			gains_I = rospy.get_param('gains_I/' + state.task)			# get integral gains of the current task			
-		int_error = np.array([[0, 0, 0, int_error[3], int_error[4], int_error[5]]]).T	# integral_error cleaning
+		int_error = np.array([[0, 0, 0, 0, int_error[4], int_error[5]]]).T	# integral_error cleaning
+		if state.task == 'PITCH':
+			int_error = np.array([[0, 0, 0, 0, 0, int_error[5]]]).T
 		stop_set_reference = [	False,							# stop_set_reference reset 
 					False,
 					False,
