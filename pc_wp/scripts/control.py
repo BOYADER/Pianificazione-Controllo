@@ -161,7 +161,7 @@ def set_reference(init_value, final_value, index, task_value):					# set gradual
 		sign = np.sign(wrap2pi(final_value - init_value))		
 	else:
 		sign = np.sign(final_value - init_value)
-	reference = init_value + sign * velocity_reference * dt					# constant acceleration motion equation
+	reference = init_value + sign * velocity_reference * dt					# uniform velocity motion equation
 	if isOverSetPoint(final_value, reference, sign):					# if gradual reference is over final reference, stop and return final reference
 		stop_set_reference[index] = True
 		return final_value
