@@ -71,7 +71,7 @@ def task_manager():
 	global QUEUE_SIZE, sub, pub
 	rospy.init_node('task_manager')
 	pub = rospy.Publisher('state', State, queue_size = QUEUE_SIZE)
-	sub = rospy.Subscriber('odom', Odom, odom_callback, pub)
+	sub = rospy.Subscriber('odom', Odom, odom_callback)
 	rospy.Subscriber('references', References, ref_callback)
 	rospy.spin()
 
