@@ -73,6 +73,8 @@ def state_callback(state, pub):
 		int_error = np.array([[0, 0, 0, 0, int_error[4], int_error[5]]]).T		# integral_error cleaning
 		if state.task == 'PITCH':
 			int_error = np.array([[0, 0, 0, 0, 0, int_error[5]]]).T			# integral_error cleaning
+		if state.task == 'YAW':
+			int_error = np.array([[0, 0, 0, 0, int_error[4], 0]]).T			# integral_error cleaning
 		stop_set_reference = [	False,							# stop_set_reference reset 
 					False,
 					False,
