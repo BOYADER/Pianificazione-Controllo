@@ -12,11 +12,12 @@ references = None
 end_mission = False
 
 sub = None											# subscriber object initialized to None
+pub = None											# publisher object initialized to None
 
 QUEUE_SIZE = rospy.get_param('QUEUE_SIZE')
 
-def odom_callback(odom, pub):
-	global auv, references, end_mission, sub
+def odom_callback(odom):
+	global auv, references, end_mission, sub, pub
 	if not auv:
 		rospy.set_param('ned_frame_origin', {	'latitude': odom.lld.x, 		# set ned_origin on the frame.yaml file
 							'longitude': odom.lld.y,
@@ -67,7 +68,7 @@ def ref_callback(ref):
 	references = ref									# references update
 
 def task_manager():
-	global QUEUE_SIZE, sub
+	global QUEUE_SIZE, sub, pub
 	rospy.init_node('task_manager')
 	pub = rospy.Publisher('state', State, queue_size = QUEUE_SIZE)
 	sub = rospy.Subscriber('odom', Odom, odom_callback, pub)
