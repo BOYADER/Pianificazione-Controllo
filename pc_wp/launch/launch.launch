@@ -1,35 +1,43 @@
 <launch>
-	<rosparam file = "$(find nav_pkg)/config/mission.yaml"/>
-	<rosparam file="$(find pc_wp)/config/rospy.yaml" />
-	<rosparam file="$(find pc_wp)/config/task_manager.yaml" />
-	<rosparam file="$(find pc_wp)/config/frame.yaml" />
-	<rosparam file="$(find pc_wp)/config/pid.yaml" />
-	<rosparam file="$(find pc_wp)/config/references.yaml" />
+    <!--Load yaml files-->
+    <rosparam file = "$(find nav_pkg)/config/mission.yaml"/>
+    <rosparam file="$(find pc_wp)/config/rospy.yaml" />
+    <rosparam file="$(find pc_wp)/config/task_manager.yaml" />
+    <rosparam file="$(find pc_wp)/config/frame.yaml" />
+    <rosparam file="$(find pc_wp)/config/pid.yaml" />
+    <rosparam file="$(find pc_wp)/config/references.yaml" />
 
-	<node name="EKF" pkg ="nav_pkg" type="EKF"/>
-	<node name="performance_analysis" pkg="nav_pkg" type="performance_analysis"/>
+    <!--Extended Kalman Filter for Navigation-->
+    <node name="EKF" pkg ="nav_pkg" type="EKF"/>
+    <node name="performance_analysis" pkg="nav_pkg" type="performance_analysis"/>
 
-	<node name ="model" pkg="modellazione" type="model"/>
-	<node name="ahrs"   pkg="modellazione" type="ahrs_sensor" />
-	<node name="depth"  pkg="modellazione" type="depth_sensor" />
-	<node name="gps"    pkg="modellazione" type="gps_sensor" />
-	<node name="usbl"   pkg="modellazione" type="usbl_sensor"/>
-	<node name="dvl"    pkg="modellazione" type="dvl_sensor"/>
-	
-	<node pkg="pc_wp" type="control.py" name="control" output="screen"/>
-	<node pkg="pc_wp" type="pitch_task.py" name="pitch_task" output="screen"/>
-	<node pkg="pc_wp" type="yaw_task.py" name="yaw_task" output="screen"/>
-	<node pkg="pc_wp" type="surge_task.py" name="surge_task" output="screen"/>
-	<node pkg="pc_wp" type="approach_task.py" name="approach_task" output="screen"/>
-	<node pkg="pc_wp" type="heave_task.py" name="heave_task" output="screen"/>
-	<node pkg="pc_wp" type="task_manager.py" name="task_manager" output="screen"/>
+    <!--Model and Sensors-->
+    <node name ="model" pkg="modellazione" type="model"/>
+    <node name="ahrs"   pkg="modellazione" type="ahrs_sensor" />
+    <node name="depth"  pkg="modellazione" type="depth_sensor" />
+    <node name="gps"    pkg="modellazione" type="gps_sensor" />
+    <node name="usbl"   pkg="modellazione" type="usbl_sensor"/>
+    <node name="dvl"    pkg="modellazione" type="dvl_sensor"/>
+    
+    <!--Controllers-->
+    <node pkg="pc_wp" type="control.py" name="control" output="screen"/>
+    <node pkg="pc_wp" type="pitch_task.py" name="pitch_task" output="screen"/>
+    <node pkg="pc_wp" type="yaw_task.py" name="yaw_task" output="screen"/>
+    <node pkg="pc_wp" type="surge_task.py" name="surge_task" output="screen"/>
+    <node pkg="pc_wp" type="approach_task.py" name="approach_task" output="screen"/>
+    <node pkg="pc_wp" type="heave_task.py" name="heave_task" output="screen"/>
+    <node pkg="pc_wp" type="task_manager.py" name="task_manager" output="screen"/>
 
-	<!--<node name="plot_tau" pkg="rqt_plot" type="rqt_plot" args="/tau/tau/force /tau/tau/torque"/>
-	<node name="plot_pos" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_1 /error/pos"/>
-	<node name="plot_rpy" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_2 /odom/rpy"/>
-	<node name="rpy_plot" pkg="rqt_plot" type="rqt_plot" args="/error/rpy"/>
-	<node name="pos_plot" pkg="rqt_plot" type="rqt_plot" args="/error/pos"/>
-	<node name="vel_plot" pkg="rqt_plot" type="rqt_plot" args="/error/lin_vel"/>
-	<node name="MSE_plot" pkg="rqt_plot" type="rqt_plot" args="/error/MSE"/>
-	<node name="plot_ni" pkg="rqt_plot" type="rqt_plot" args="/state_real/ni_1 /odom/lin_vel"/>-->
+    <!--Plots-->
+    <node name="plot_tau" pkg="rqt_plot" type="rqt_plot" args="/tau/tau/force /tau/tau/torque"/>
+    
+    <node name="plot_pos" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_1 /pos_ned"/>
+    <node name="plot_ni" pkg="rqt_plot" type="rqt_plot" args="/state_real/ni_1 /odom/lin_vel"/>
+    <node name="plot_rpy" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_2 /odom/rpy"/>
+
+    <node name="rpy_plot" pkg="rqt_plot" type="rqt_plot" args="/error/rpy"/>
+    <node name="pos_plot" pkg="rqt_plot" type="rqt_plot" args="/error/pos"/>
+    <node name="vel_plot" pkg="rqt_plot" type="rqt_plot" args="/error/lin_vel"/>
+    <node name="MSE_plot" pkg="rqt_plot" type="rqt_plot" args="/error/MSE"/>
+    
 </launch>
