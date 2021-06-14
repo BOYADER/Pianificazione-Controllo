@@ -19,6 +19,6 @@
 	<node name="plot_rpy" pkg="rqt_plot" type="rqt_plot" args="/state_real/eta_2"/>
 	<node name="plot_force" pkg="rqt_plot" type="rqt_plot" args="/tau/tau/force"/>
 	<node name="plot_torque" pkg="rqt_plot" type="rqt_plot" args="/tau/tau/torque"/>
-	<node name="plot_ni_2" pkg="rqt_plot" type="rqt_plot" args="/state_real/ni_2"/>-->
-	<node name="plot_ni_1" pkg="rqt_plot" type="rqt_plot" args="/state_real/ni_1"/>
+	<node name="plot_ni_2" pkg="rqt_plot" type="rqt_plot" args="/state_real/ni_2"/>
+	<node name="plot_ni_1" pkg="rqt_plot" type="rqt_plot" args="/state_real/ni_1"/>-->
 </launch>
