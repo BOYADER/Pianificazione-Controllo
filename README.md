@@ -4,8 +4,8 @@ La missione consiste nel raggiungere dei waypoints di cui le coordinate (Lat. Lo
 
 ## Contenuti:
 * [1. Requisiti](#1-requisiti)
-* [2. Simulazione finale](#2-simulazione finale)
-* [3. Simulazione intermedia](#3-simulazione intermedia)
+* [2. Simulazione finale](#2-simulazione-finale)
+* [3. Simulazione intermedia](#3-simulazione-intermedia)
 
 ## 1) Requisiti
 Per eseguire correttamente la simulazione ed ottenere i risultati mostrati nel report, è opportuno assicurarsi di:
