@@ -44,9 +44,9 @@ E' possibile plottare:
 	- Errore sulle singole grandezze.
 	- Errore quadratico Medio (MSE) calcolato iterativamente al variare del tempo.
 
-![alt text](/docs/rqt_graph.PNG)
+![alt text](https://github.com/BOYADER/Navigazione/blob/main/docs/rqt_graph.PNG)
 
-## 6) Simulazione intermedia
+## 3) Simulazione intermedia
 Per lanciare la simulazione relativa all'integrazione tra Pianificazione-Controllo e Modellazione, digitare da terminale:
  ```
       ~$ roslaunch pc_wp test.launch
