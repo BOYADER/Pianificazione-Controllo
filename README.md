@@ -53,4 +53,6 @@ Per lanciare la simulazione relativa all'integrazione tra Pianificazione-Control
  ```
 (https://github.com/BOYADER/Pianificazione-Controllo/blob/main/pc_wp/launch/test.launch)
 
+![alt text](https://github.com/BOYADER/Pianificazione-Controllo/blob/main/testlaunch.PNG)
+
 Per spiegazioni dettagliate circa il codice e i risultati, si rimanda al report del modulo Pianificazione-Controllo presente nella stessa cartella di README.md
